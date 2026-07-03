@@ -13,7 +13,8 @@ let UserSchema = new mongoose.Schema({
         type : String,
         required : true,
         trim : true,
-        index : true
+        index : true,
+        unique : true,
     },
     password : {
         type : String,
@@ -30,7 +31,7 @@ let UserSchema = new mongoose.Schema({
     },
     bio : {
         type : String,
-        default : "Hey there, Looking for matches !!!"
+        default : "Hey there !"
     },   
     lastseen : {
         type : Date
@@ -38,7 +39,15 @@ let UserSchema = new mongoose.Schema({
     avatar : {
         type : String,
         default : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT0M9PkaDKnCMW8NANGmmvjkS-WhhsIOe4pQ&s",
-    }
+    },
+    isUserVerified: {
+        type: Boolean,
+        default: false,
+    },
+    isEmailVerified: {
+        type: Boolean,
+        default: false,
+    },
 },{timestamps:true});
 
 let UserModel = new mongoose.model("users");
