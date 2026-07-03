@@ -1,9 +1,10 @@
-import express from "express";
+import express, { urlencoded } from "express";
 import cors from "cors";
+import dbConnection from "./config/db.js";
 
 let app = express();
-
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 
 app.use(cors({
     origin : "*",
@@ -30,6 +31,15 @@ app.use((req, res) => {
 });
 
 
-app.listen(PORT, ()=>{
-    console.log(`Server is up at http:localhost:${PORT}`);
+dbConnection().then(()=>{
+    console.log("DB connected");
+
+    app.listen(PORT, ()=>{
+        console.log(`Server is up at http:localhost:${PORT}`);
+    });
+}).catch(err =>{
+    console.log("Some Error in connecting DB");
+    process.exit(1);  
+    //if there is error , deestablish the connection or exit the connection
 })
+
