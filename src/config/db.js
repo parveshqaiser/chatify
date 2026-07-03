@@ -1,8 +1,11 @@
 
 import mongoose from "mongoose";
 
+import "dotenv/config";
+
 const dbConnection = async()=>{
-    await mongoose.connect("mongodb+srv://parveshqaiser:parvesh@cluster0.kv3ztw3.mongodb.net/Chatify");
+    
+    await mongoose.connect(process.env.MONGODB_CONNECTION_STRING);
     // console.log("MongoDB connected:", mongoose.connection.host);
 }
 

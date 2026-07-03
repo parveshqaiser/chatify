@@ -1,6 +1,8 @@
 import express, { urlencoded } from "express";
 import cors from "cors";
+import dotenv from "dotenv";
 import dbConnection from "./config/db.js";
+import authRoutes from "./routes/auth.routes.js"; 
 
 let app = express();
 app.use(express.json());
@@ -14,7 +16,7 @@ app.use(cors({
 }));
 
 
-let PORT = 5555 ?? 2222;
+let PORT = 7500 ?? 2500;
 
 app.get("/", (req, res)=>{
     res.status(200).json({
@@ -22,6 +24,8 @@ app.get("/", (req, res)=>{
         success : true
     })
 });
+
+app.use("/api/v1/auth", authRoutes);
 
 app.use((req, res) => {
     res.status(404).json({
@@ -40,6 +44,6 @@ dbConnection().then(()=>{
 }).catch(err =>{
     console.log("Some Error in connecting DB");
     process.exit(1);  
-    //if there is error , deestablish the connection or exit the connection
+    //if there is error , de establish the connection or exit the connection
 })
 

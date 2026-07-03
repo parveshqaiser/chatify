@@ -18,9 +18,8 @@ let UserSchema = new mongoose.Schema({
     },
     password : {
         type : String,
-        required : true
+        required : [true, "Password is required"]
     },
-    // this is best practise
     status : {
         type : String,
         default : "offline",
@@ -40,16 +39,36 @@ let UserSchema = new mongoose.Schema({
         type : String,
         default : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT0M9PkaDKnCMW8NANGmmvjkS-WhhsIOe4pQ&s",
     },
-    isUserVerified: {
-        type: Boolean,
-        default: false,
-    },
     isEmailVerified: {
         type: Boolean,
         default: false,
     },
+    isUserVerified: {
+        type: Boolean,
+        default: false,
+    },
+    refreshToken : {
+        type: String
+    },
+    forgotPasswordToken : {
+        type : String,
+    },
+    forgotPasswordExpiry : {
+        type : Date
+    },
+    emailVerificationToken : {
+        type : String
+    },
+    emailVerificationExpiry : {
+        type : Date
+    }
+   
 },{timestamps:true});
 
-let UserModel = new mongoose.model("users");
+UserSchema.methods.isPasswordCorrect = async function(password){
+    return this.password = enteredPassowrd;
+}
+
+let UserModel = mongoose.model("users", UserSchema);
 export default UserModel;
 

@@ -8,7 +8,7 @@
 - **User Registration:** Account creation with email verification
 - **User Login:** Secure authentication with JWT tokens
 - **Password Management:** Change password, forgot/reset password functionality
-- **Email Verification:** Account verification via email tokens
+- **Email Verification:** Account verification via email tokens (AWS SES)
 - **Token Management:** Access token refresh mechanism
 
 ### 2. Mesaage
@@ -20,14 +20,14 @@
 - Update / Edit chat, pics, videos, emojis
 - Clear all conversation
 
-# Models
+## Models
 
 - User model
 - Message model
 - Conversation model
 
 
-# End Points
+## End Points
 
 **Authentication Routes** (`/api/v1/auth/`)
 
@@ -65,7 +65,7 @@
 - Support for multiple file attachments on tasks
 - Files stored in public/images directory
 - File metadata tracking (URL, MIME type, size)
-- Secure file upload handling
+- Secure file upload handling using multer & cloudinary or AWS S3 (simple storage service)
 
 ### 5. Success Criteria
 
