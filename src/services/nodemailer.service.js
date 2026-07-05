@@ -1,5 +1,6 @@
 
 import nodemailer from "nodemailer";
+import { emailTemplate } from "../utils/mailgen.js";
 
 export let transport = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
@@ -14,3 +15,17 @@ export let transport = nodemailer.createTransport({
         rejectUnauthorized: false
     }
 });
+
+export let sendEmailToUser = async(email,name)=>{
+
+    let {text, html} = emailTemplate(name);
+
+    return transport.sendMail({
+        from: '"Chatify" <chatify.test@gmail.com>',
+        to: email,
+        subject: "Welcome to Chatify - Verify Your Account",
+        text,
+        html
+    });
+}
+
