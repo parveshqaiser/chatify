@@ -10,15 +10,15 @@ export let mailGenerator = new Mailgen({
     }
 });
 
-export const emailContent = (name)=>{
-    let emailBody = {
+export const emailTemplate = (name)=>{
+    let email = {
         body: {
             name: name,
             intro: 'Welcome to Chatify! We\'re very excited to have you on board.',
             action: {
                 instructions: 'To Verify your account, please click here:',
                 button: {
-                    color: '#22BC66',
+                    color: '#bb269b',
                     text: 'Verify Your Account',
                     link: 'https://mailgen.js/confirm?s=d9729feb74992cc3482b350163a1a010'
                 }
@@ -27,9 +27,8 @@ export const emailContent = (name)=>{
         }
     };
 
-
-    let emailHtml = mailGenerator.generate(emailBody);
-    let emailText = mailGenerator.generatePlaintext(emailBody);
-
-    return {emailHtml,emailText}
+    return {
+        html : mailGenerator.generate(email),
+        text : mailGenerator.generatePlaintext(email)
+    }
 };
