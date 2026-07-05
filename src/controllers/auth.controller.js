@@ -77,6 +77,7 @@ const userLogin = async(req, res)=>{
         let refreshToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"7d"});
 
         user.refreshToken = refreshToken;
+        user.status = "online";
         await user.save();
 
         res.status(200).cookie("token", accessToken,{ 
