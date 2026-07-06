@@ -99,4 +99,39 @@ const userLogin = async(req, res)=>{
     }
 }
 
-export {userRegistration, userLogin};
+const userLogout = async(req, res)=>{
+    try {
+        let id = req.user.id;
+
+        let user = await UserModel.findByIdAndUpdate(
+            id,
+            { $set: { refreshToken: "" } },
+            {returnDocument: "after"}
+        );
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User does not exist"
+            });
+        }
+
+        res.status(200).clearCookie("token",{
+            sameSite: "strict",
+            secure: true,
+            // httpOnly: true,
+        }).json({
+            message : "Logout Success",
+            success : true
+        })
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+export {userRegistration, userLogin, userLogout};
