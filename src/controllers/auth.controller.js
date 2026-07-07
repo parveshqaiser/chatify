@@ -3,13 +3,12 @@ import UserModel from "../models/user.model.js";
 import { sendEmailToUser } from "../services/nodemailer.service.js";
 import { checkInputValidation } from "../utils/validation.js";
 import jwt from "jsonwebtoken";
+import { generateTemporaryToken } from "../utils/generateToken.js"; 
 
 const userRegistration = async(req, res)=>{
 
     try {
         let {name, username, password, email} = req.body;
-
-        // here comes data validation
 
         let errMessage = checkInputValidation(name, username, password, email); // better to send like this because if you send the whole req.body it treats as arry of obj
 
@@ -20,19 +19,43 @@ const userRegistration = async(req, res)=>{
             })
         }
 
+        // check if user already exist & user is already verified.
+        let user = await UserModel.findOne({$or : [{username,email}]});
+
+        if(user && user.isUserVerified){
+            return res.status(409).json({
+                message : `User with the email ${user.email} or username ${user.username} already exist. Please Login!`,
+                success : false
+            })
+        }
+ 
+        // check if user is registered & but not verified, for them again send them mail.
+
+        let {unhashedToken, hashedToken, tokenExpiry} = generateTemporaryToken();
+
+        console.log("******************** ", unhashedToken, hashedToken, tokenExpiry);
+
+        // once all the steps are complete then registere
+
         let createUser = await UserModel.create({
             name,
             username,
             password,
-            email
+            email,
+            emailVerificationToken: hashedToken,
+            emailVerificationExpiry: tokenExpiry
         });
 
-        sendEmailToUser(email,name).catch(err =>{
+        let verificationURL = `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unhashedToken}`;
+        console.log("verificationURL ", verificationURL)
+
+        sendEmailToUser(email,name, verificationURL).catch(err =>{
             console.error("Background email failed: ", err);
-        })
+        });
+
 
         res.status(201).json({
-            message : "User Registered Successfuly",
+            message : "User Verification Email sent Successfully. Please check your email",
             success : true
         });
 
@@ -61,9 +84,11 @@ const userLogin = async(req, res)=>{
 
         // check for password
 
-        if(password !== user.password){
+        let isPasswordCorrect = await user.isPasswordCorrect(password);
+
+        if(!isPasswordCorrect){
             return res.status(400).json({
-                message : "Password Not Matched",
+                message : "Invalid Credentials",
                 success : false
             })
         }
