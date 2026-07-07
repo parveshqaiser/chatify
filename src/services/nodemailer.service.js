@@ -16,14 +16,15 @@ export let transport = nodemailer.createTransport({
     }
 });
 
-export let sendEmailToUser = async(email,name)=>{
+export let sendEmailToUser = async(email,name, verificationURL)=>{
 
-    let {text, html} = emailTemplate(name);
+    let {text, html} = emailTemplate(name, verificationURL);
 
     return transport.sendMail({
         from: '"Chatify" <chatify.test@gmail.com>',
         to: email,
-        subject: "Welcome to Chatify - Verify Your Account",
+        // subject: "Welcome to Chatify - Verify Your Account",
+        subject : "Confirmation Instructions for Chatify Account",
         text,
         html
     });

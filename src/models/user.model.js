@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "node:crypto"
 
 let UserSchema = new mongoose.Schema({
     name : {
@@ -39,6 +40,9 @@ let UserSchema = new mongoose.Schema({
         type : String,
         default : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT0M9PkaDKnCMW8NANGmmvjkS-WhhsIOe4pQ&s",
     },
+    refreshToken : {
+        type: String
+    },
     isEmailVerified: {
         type: Boolean,
         default: false,
@@ -46,28 +50,45 @@ let UserSchema = new mongoose.Schema({
     isUserVerified: {
         type: Boolean,
         default: false,
-    },
-    refreshToken : {
-        type: String
-    },
-    forgotPasswordToken : {
-        type : String,
-    },
-    forgotPasswordExpiry : {
-        type : Date
-    },
+    },    
     emailVerificationToken : {
         type : String
     },
     emailVerificationExpiry : {
         type : Date
-    }
-   
+    },
+     forgotPasswordToken : {
+        type : String,
+    },
+    forgotPasswordExpiry : {
+        type : Date
+    },   
 },{timestamps:true});
 
-UserSchema.methods.isPasswordCorrect = async function(password){
-    return this.password = enteredPassowrd;
+/*
+    UserSchema.pre("save",async function (next){
+
+        if(!this.isModified("password")) return next()  // it will run only when you first create & update password. remaining time it wont run
+
+        this.password = await bcrypt.hash(this.password,10);
+        next()
+    })
+
+*/
+
+
+UserSchema.methods.isPasswordCorrect = async function(enteredPassowrd){
+    return this.password == enteredPassowrd;
 }
+
+// below is called instance of method, if user is empty, this method will return null
+// UserSchema.methods.generateTemporaryToken = async function(){
+
+//     let unhashedToken = crypto.randomBytes(10).toString("hex");
+//     let hashToken = crypto.createHash("sha256").update(unhashedToken).digest("hex");
+//     let tokenExpiry = Date.now() +(5*60*1000);
+//     return {unhashedToken,hashedToken, tokenExpiry};
+// }
 
 let UserModel = mongoose.model("users", UserSchema);
 export default UserModel;

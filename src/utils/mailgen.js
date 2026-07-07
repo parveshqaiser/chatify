@@ -10,20 +10,26 @@ export let mailGenerator = new Mailgen({
     }
 });
 
-export const emailTemplate = (name)=>{
+export const emailTemplate = (name, verificationURL)=>{
     let email = {
         body: {
             name: name,
             intro: 'Welcome to Chatify! We\'re very excited to have you on board.',
             action: {
-                instructions: 'To Verify your account, please click here:',
+                instructions: 'Verify your email address by clicking the button below',
                 button: {
                     color: '#bb269b',
                     text: 'Verify Your Account',
-                    link: 'https://mailgen.js/confirm?s=d9729feb74992cc3482b350163a1a010'
+                    // link: 'https://mailgen.js/confirm?s=d9729feb74992cc3482b350163a1a010'
+                    link : verificationURL
                 }
             },
-        outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.'
+        outro: [
+                'Need help, or have questions? Just reply to this email support@chatify.com , we\'d love to help.',
+                'Note: Unverified accounts are automatically deleted after 30 days of signup.',
+                'If you did not request this account, please ignore this email.'
+            ],
+        // signature : false
         }
     };
 
