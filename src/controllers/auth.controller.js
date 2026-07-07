@@ -4,12 +4,14 @@ import { sendEmailToUser } from "../services/nodemailer.service.js";
 import { checkInputValidation } from "../utils/validation.js";
 import jwt from "jsonwebtoken";
 import { generateTemporaryToken } from "../utils/generateToken.js"; 
+import crypto from "node:crypto";
 
 const userRegistration = async(req, res)=>{
 
     try {
         let {name, username, password, email} = req.body;
 
+        // check for email std format, username min chars, password min chars using express-validator
         let errMessage = checkInputValidation(name, username, password, email); // better to send like this because if you send the whole req.body it treats as arry of obj
 
         if(errMessage){
@@ -22,7 +24,7 @@ const userRegistration = async(req, res)=>{
         // check if user already exist & user is already verified.
         let user = await UserModel.findOne({$or : [{username,email}]});
 
-        if(user && user.isUserVerified){
+        if(user && user.isEmailVerified){
             return res.status(409).json({
                 message : `User with the email ${user.email} or username ${user.username} already exist. Please Login!`,
                 success : false
@@ -58,6 +60,75 @@ const userRegistration = async(req, res)=>{
             message : "User Verification Email sent Successfully. Please check your email",
             success : true
         });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+const verifyEmailToken = async(req, res)=>{
+    try {
+        let emailToken = req.params.verificationToken;
+
+        if (!emailToken) {
+            return res.status(400).json({
+                message: "Verification token is required",
+                success: false
+            });
+        }
+
+        let hashedToken = crypto.createHash("sha256").update(emailToken).digest("hex");
+
+        // let user = await UserModel.findOne({
+        //     emailVerificationToken: hashedToken ,
+        //     emailVerificationExpiry : {$gt : Date.now()}
+        // });
+
+        let user = await UserModel.findOneAndUpdate(
+            {
+                emailVerificationToken : hashedToken,
+                emailVerificationExpiry : {$gt : Date.now()}
+            }, 
+            {
+                $set : {
+                    isEmailVerified: true
+                },
+                $unset : {
+                    emailVerificationToken :"",
+                    emailVerificationExpiry:"",
+                }
+            },
+            {
+                new : true
+            }
+        );
+
+        if(!user){
+            return res.status(400).json({
+                message : "Invalid or Expired Token",
+                success : false
+            });
+        }
+
+        // if (user.isEmailVerified) {
+        //     return res.status(400).json({
+        //         message: "Email is already verified",
+        //         success: false
+        //     });
+        // }
+
+        // user.isEmailVerified = true,
+        // user.emailVerificationToken = "",
+        // user.emailVerificationExpiry="",
+
+        // await user.save();
+        
+
+        return res.redirect(`${req.protocol}://${req.get("host")}/api/v1/users/email-verification-success`);
 
     } catch (error) {
         res.status(500).json({ 
