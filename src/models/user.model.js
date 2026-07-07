@@ -47,10 +47,6 @@ let UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    isUserVerified: {
-        type: Boolean,
-        default: false,
-    },    
     emailVerificationToken : {
         type : String
     },
