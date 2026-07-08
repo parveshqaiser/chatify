@@ -140,7 +140,7 @@ const userLogin = async(req, res)=>{
         
         let {email, password} = req.body;
 
-        let user = await UserModel.findOne({email});
+        let user = await UserModel.findOne({email, isEmailVerified: true});
 
         if(!user){
             return res.status(404).json({
