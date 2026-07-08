@@ -13,6 +13,8 @@ const userRegistration = async(req, res)=>{
         let {name, username, password, email} = req.body;
 
         // check for email std format, username min chars, password min chars using express-validator
+
+
         let errMessage = checkInputValidation(name, username, password, email); // better to send like this because if you send the whole req.body it treats as arry of obj
 
         if(errMessage){
@@ -22,39 +24,44 @@ const userRegistration = async(req, res)=>{
             })
         }
 
-        // check if user already exist & user is already verified.
         let user = await UserModel.findOne({$or : [{username,email}]});
 
+        // checking if user exist already verified
         if(user && user.isEmailVerified){
             return res.status(409).json({
                 message : `User with the email ${user.email} or username ${user.username} already exist. Please Login!`,
                 success : false
             })
         }
- 
-        // check if user is registered & but not verified, for them again send them mail.
 
         let {unhashedToken, hashedToken, tokenExpiry} = generateEmailVerificationToken();
 
-        console.log("******************** ", unhashedToken, hashedToken, tokenExpiry);
-
-        // once all the steps are complete then registere
-
-        let createUser = await UserModel.create({
-            name,
-            username,
-            password,
-            email,
-            emailVerificationToken: hashedToken,
-            emailVerificationExpiry: tokenExpiry
-        });
+        if (user && !user.isEmailVerified){
+            await UserModel.updateOne(
+                {email : email},
+                {$set : {
+                    username : username,
+                    password: password,
+                    emailVerificationToken: hashedToken,
+                    emailVerificationExpiry: tokenExpiry
+                }}
+            )
+        }else {
+            let createUser = await UserModel.create({
+                name,
+                username,
+                password,
+                email,
+                emailVerificationToken: hashedToken,
+                emailVerificationExpiry: tokenExpiry
+            });
+        }
 
         let verificationURL = `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unhashedToken}`;
        
         sendEmailToUser(email,name, verificationURL).catch(err =>{
             console.error("Background email failed: ", err);
         });
-
 
         res.status(201).json({
             message : "User Verification Email sent Successfully. Please check your email",
