@@ -178,8 +178,8 @@ const userLogin = async(req, res)=>{
             sameSite: 'strict',
             maxAge: 2 * 60 * 60 * 1000
         }).status(200).json({
-            message : "Login Success",
-            success : true
+            message : `Login Success. Welcome ${user.name}`,
+            success : true,
         });
 
     } catch (error) {
@@ -226,4 +226,32 @@ const userLogout = async(req, res)=>{
     }
 }
 
-export {userRegistration, verifyEmailToken, userLogin, userLogout};
+const currentUser = async(req, res)=>{
+    try {
+        let {email} = req.user;
+
+        let user = await UserModel.findOne({email}).select("-password");
+
+        if(!user){
+            return res.status(404).json({
+                message: "User does not exist",
+                success: false,               
+            })
+        }
+
+        res.status(200).json({
+            message : "User Data Fetched",
+            dsta : user,
+            success : true
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+export {userRegistration, verifyEmailToken, userLogin, userLogout ,currentUser};
