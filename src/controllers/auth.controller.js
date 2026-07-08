@@ -3,8 +3,9 @@ import UserModel from "../models/user.model.js";
 import { sendEmailToUser } from "../services/nodemailer.service.js";
 import { checkInputValidation } from "../utils/validation.js";
 import jwt from "jsonwebtoken";
-import { generateTemporaryToken } from "../utils/generateToken.js"; 
+import { generateEmailVerificationToken } from "../utils/generateToken.js"; 
 import crypto from "node:crypto";
+import path from "node:path";
 
 const userRegistration = async(req, res)=>{
 
@@ -33,7 +34,7 @@ const userRegistration = async(req, res)=>{
  
         // check if user is registered & but not verified, for them again send them mail.
 
-        let {unhashedToken, hashedToken, tokenExpiry} = generateTemporaryToken();
+        let {unhashedToken, hashedToken, tokenExpiry} = generateEmailVerificationToken();
 
         console.log("******************** ", unhashedToken, hashedToken, tokenExpiry);
 
@@ -48,9 +49,8 @@ const userRegistration = async(req, res)=>{
             emailVerificationExpiry: tokenExpiry
         });
 
-        let verificationURL = `${req.protocol}://${req.get("host")}/api/v1/users/verify-email/${unhashedToken}`;
-        console.log("verificationURL ", verificationURL)
-
+        let verificationURL = `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unhashedToken}`;
+       
         sendEmailToUser(email,name, verificationURL).catch(err =>{
             console.error("Background email failed: ", err);
         });
@@ -82,11 +82,7 @@ const verifyEmailToken = async(req, res)=>{
         }
 
         let hashedToken = crypto.createHash("sha256").update(emailToken).digest("hex");
-
-        // let user = await UserModel.findOne({
-        //     emailVerificationToken: hashedToken ,
-        //     emailVerificationExpiry : {$gt : Date.now()}
-        // });
+        // let {tokenExpiry} = generateEmailVerificationToken();  not using now
 
         let user = await UserModel.findOneAndUpdate(
             {
@@ -103,32 +99,25 @@ const verifyEmailToken = async(req, res)=>{
                 }
             },
             {
-                new : true
+                returnDocument: "after"
             }
         );
 
         if(!user){
-            return res.status(400).json({
-                message : "Invalid or Expired Token",
-                success : false
-            });
+            // return res.status(400).json({
+            //     message : "Invalid or Expired Token",
+            //     success : false
+            // });
+            return res.sendFile(
+                path.join(process.cwd(),"public","email-invalid.html")
+            )
         }
-
-        // if (user.isEmailVerified) {
-        //     return res.status(400).json({
-        //         message: "Email is already verified",
-        //         success: false
-        //     });
-        // }
-
-        // user.isEmailVerified = true,
-        // user.emailVerificationToken = "",
-        // user.emailVerificationExpiry="",
-
-        // await user.save();
         
 
-        return res.redirect(`${req.protocol}://${req.get("host")}/api/v1/users/email-verification-success`);
+        // return res.redirect(`${req.protocol}://${req.get("host")}/api/v1/users/email-verification-success`);
+        res.sendFile(
+            path.join(process.cwd(), "public", "email-success.html")
+        );
 
     } catch (error) {
         res.status(500).json({ 
@@ -230,4 +219,4 @@ const userLogout = async(req, res)=>{
     }
 }
 
-export {userRegistration, userLogin, userLogout};
+export {userRegistration, verifyEmailToken, userLogin, userLogout};
