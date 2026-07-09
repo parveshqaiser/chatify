@@ -144,7 +144,6 @@ const userLogin = async(req, res)=>{
 
         if (loginAttempt && loginAttempt.lockedUntil && loginAttempt.lockedUntil > Date.now()) 
         {
-
             let remainingMinutes = Math.ceil((loginAttempt.lockedUntil - Date.now()) / 60000);
             return res.status(429).json({
                 message: `Too many attempts. Try again after ${remainingMinutes} minutes`,
@@ -190,6 +189,12 @@ const userLogin = async(req, res)=>{
                 message : "Invalid Credentials",
                 success : false
             })
+        }
+
+        if(isPasswordCorrect){
+            loginAttempt.failedAttempts =0;
+            loginAttempt.lockedUntil = null;
+            await loginAttempt.save();
         }
 
         let payload = {
