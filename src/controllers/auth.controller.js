@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { generateEmailVerificationToken } from "../utils/generateToken.js"; 
 import crypto from "node:crypto";
 import path from "node:path";
+import LoginAttemptModel from "../models/login.model.js";
 
 const userRegistration = async(req, res)=>{
 
@@ -13,7 +14,6 @@ const userRegistration = async(req, res)=>{
         let {name, username, password, email} = req.body;
 
         // check for email std format, username min chars, password min chars using express-validator
-
 
         let errMessage = checkInputValidation(name, username, password, email); // better to send like this because if you send the whole req.body it treats as arry of obj
 
@@ -140,20 +140,52 @@ const userLogin = async(req, res)=>{
         
         let {email, password} = req.body;
 
-        let user = await UserModel.findOne({email, isEmailVerified: true});
+        let loginAttempt = await LoginAttemptModel.findOne({email});
 
-        if(!user){
-            return res.status(404).json({
-                message : "User Account Does not exist",
+        if (loginAttempt && loginAttempt.lockedUntil && loginAttempt.lockedUntil > Date.now()) 
+        {
+
+            let remainingMinutes = Math.ceil((loginAttempt.lockedUntil - Date.now()) / 60000);
+            return res.status(429).json({
+                message: `Too many attempts. Try again after ${remainingMinutes} minutes`,
                 success: false
             });
         }
 
-        // check for password
+        let user = await UserModel.findOne({email, isEmailVerified: true});
 
+        if(!user){
+            return res.status(404).json({
+                message : "Invalid User or User not verified",
+                success: false
+            });
+        }
+
+        // checking for password
         let isPasswordCorrect = await user.isPasswordCorrect(password);
 
         if(!isPasswordCorrect){
+
+            let attempts = await LoginAttemptModel.findOne({email});
+
+            if(!attempts){
+                await LoginAttemptModel.create({
+                    email,
+                    failedAttempts:1,
+                    lastAttemptAt : Date.now()
+                });
+            }else {
+                attempts.failedAttempts +=1;
+                attempts.lastAttemptAt = Date.now();
+
+                if(attempts.failedAttempts >= 5){
+                    attempts.lockedUntil = Date.now() +(15 * 60 *1000) // 15 mins
+                    attempts.failedAttempts = 0;
+                }
+
+                await attempts.save();
+            }
+
             return res.status(400).json({
                 message : "Invalid Credentials",
                 success : false
