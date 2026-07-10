@@ -1,5 +1,5 @@
 import express from "express";
-import { currentUser, updateProfile, userLogin, userLogout, userRegistration, verifyEmailToken } from "../controllers/auth.controller.js";
+import { currentUser, updatePassword, updateProfile, userLogin, userLogout, userRegistration, verifyEmailToken } from "../controllers/auth.controller.js";
 import userAuthentication from "../middlewares/auth.middleware.js";
 
 let router = express.Router();
@@ -12,6 +12,8 @@ router.get("/logout",userAuthentication, userLogout);
 
 router.get("/current-user", userAuthentication, currentUser);
 router.patch("/update-profile", userAuthentication, updateProfile);
+
+router.post("/change-password", userAuthentication,updatePassword);
 
 export default router;
 
