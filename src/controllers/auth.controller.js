@@ -234,7 +234,7 @@ const userLogout = async(req, res)=>{
 
         let user = await UserModel.findByIdAndUpdate(
             id,
-            { $set: { refreshToken: "" } },
+            { $set: { refreshToken: "" , status : "offline"} },
             {returnDocument: "after"}
         );
 
@@ -291,4 +291,46 @@ const currentUser = async(req, res)=>{
     }
 }
 
-export {userRegistration, verifyEmailToken, userLogin, userLogout ,currentUser};
+const updateProfile = async(req, res)=>{
+    try {
+        let {email} = req.user;
+
+        let {name, bio} = req.body;
+
+        let update = await UserModel.findOneAndUpdate(
+            {email:email},
+            {
+                $set : {
+                    name : name,
+                    bio : bio
+                }
+            },
+            {
+                returnDocument : "after"
+            }
+        );
+
+        if(!update){
+            res.status(404).json({
+                message : "User Not found",
+                success: false
+            });
+        }
+
+        res.status(200).json({
+            message : "Profle Updated",
+            success: true
+        });
+
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+
+export {userRegistration, verifyEmailToken, userLogin, userLogout ,currentUser, updateProfile};
