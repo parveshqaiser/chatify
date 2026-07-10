@@ -332,5 +332,45 @@ const updateProfile = async(req, res)=>{
     }
 }
 
+const updatePassword = async(req,res)=>{
+    try {
+        let {password:existingPassword, newPassword,confirmPassword} = req.body;
 
-export {userRegistration, verifyEmailToken, userLogin, userLogout ,currentUser, updateProfile};
+        let {email} = req.user;
+
+        let user = await UserModel.findOne({email});
+
+        let isPasswordCorrect = await user.isPasswordCorrect(existingPassword);
+
+        if(!isPasswordCorrect){
+            return res.status(400).json({
+                message : "Current Pasword is Invalid",
+                success : false
+            });
+        }
+
+        if(newPassword !== confirmPassword){
+            return res.status(400).json({
+                message : "New password and confirm password do not match.",
+                success :false
+            })
+        }   
+
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({
+            message : "Passwod changed Successfully",
+            success : true
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+export {userRegistration, verifyEmailToken, userLogin, userLogout ,currentUser, updateProfile, updatePassword};
