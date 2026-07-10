@@ -336,6 +336,14 @@ const updatePassword = async(req,res)=>{
     try {
         let {password:existingPassword, newPassword,confirmPassword} = req.body;
 
+        let errMessage = checkInputValidation(existingPassword, newPassword, confirmPassword);
+        if(errMessage){
+            return res.status(400).json({
+                message : errMessage,
+                success : false
+            })
+        }
+
         let {email} = req.user;
 
         let user = await UserModel.findOne({email});
