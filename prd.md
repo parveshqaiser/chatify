@@ -19,6 +19,8 @@
 - AI integration 
 - Update / Edit chat, pics, videos, emojis
 - Clear all conversation
+- Green if online & red if offline
+- last seen feature like last seen 2 mins ago
 
 ## Models
 
