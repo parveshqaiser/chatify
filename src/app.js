@@ -3,10 +3,11 @@ import "dotenv/config";
 
 import express, { urlencoded } from "express";
 import cors from "cors";
-
+import http from "node:http";
 import dbConnection from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js"; 
 import cookieParser from "cookie-parser";
+import initializeSocketConnection from "./utils/socket.js";
 
 let app = express();
 app.use(express.json());
@@ -14,7 +15,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 
 app.use(cors({
-    origin : "*",
+    origin : "http://localhost:5173/",
     methods : ["GET", "POST", "PUT", "PATCH","DELETE"],
     credentials : true,
     allowedHeaders : ["Content-Type", "Authorization"]
@@ -22,6 +23,9 @@ app.use(cors({
 
 
 let PORT = 7500 ?? 2500;
+
+let httpServer = http.createServer(app);
+initializeSocketConnection(httpServer);
 
 app.get("/", (req, res)=>{
     res.status(200).json({
@@ -43,7 +47,7 @@ app.use((req, res) => {
 dbConnection().then(()=>{
     console.log("DB connected");
 
-    app.listen(PORT, ()=>{
+    httpServer.listen(PORT, ()=>{
         console.log(`Server is up at http:localhost:${PORT}`);
     });
 }).catch(err =>{
