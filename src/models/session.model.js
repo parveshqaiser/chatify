@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+
+// not using this model as of now
 const SessionSchema = new mongoose.Schema({
     userId : {
         type : mongoose.Schema.Types.ObjectId,
