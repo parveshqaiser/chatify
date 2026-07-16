@@ -49,8 +49,10 @@
 
 **Message Routes** (`/api/v1/message/`)
 
+- `POST` - Send Message (secured)
 - `PATCH /edit-chat` -  Update/ edit user meesage (secured)
 - `DELETE /chat` - Update User Profile (secured)
+-  `GET / chat` - Get All Messages between two users or group of users
 
 
 
