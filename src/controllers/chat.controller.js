@@ -68,4 +68,40 @@ const sendMessage = async(req, res)=>{
     }
 }
 
-export {sendMessage};
+
+const getAllMessage = async(req, res)=>{
+    try {
+        let loggedInUser = req.user.id; // sender id
+        let targetUserId = req.params.id;
+
+        if(loggedInUser == targetUserId.toString()){
+            return res.status(400).json({
+                message : "Logged In User & Target User id cannot be same",
+                success : false
+            })
+        }
+
+
+        let chat = await ChatModel.findOne({
+            participants : {
+                $all: [loggedInUser, targetUserId]
+            }
+        }).populate({path: "message.senderId", select : "name"})
+        .populate({path: "message.receiverId", select : "name"});
+
+        res.status(200).json({
+            message : chat == null ? "No Conversation started": "Data fetched",
+            success : true,
+            data : chat == null ? [] : chat 
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+export {sendMessage, getAllMessage};
