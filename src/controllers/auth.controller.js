@@ -142,6 +142,8 @@ const userLogin = async(req, res)=>{
 
         let loginAttempt = await LoginAttemptModel.findOne({email});
 
+        console.log("******************* ", loginAttempt);
+
         if (loginAttempt && loginAttempt.lockedUntil && loginAttempt.lockedUntil > Date.now()) 
         {
             let remainingMinutes = Math.ceil((loginAttempt.lockedUntil - Date.now()) / 60000);
@@ -191,11 +193,11 @@ const userLogin = async(req, res)=>{
             })
         }
 
-        if(isPasswordCorrect){
-            loginAttempt.failedAttempts =0;
-            loginAttempt.lockedUntil = null;
-            await loginAttempt.save();
-        }
+        // if(isPasswordCorrect || loginAttempt == null){
+            // loginAttempt.failedAttempts = 0;
+            // loginAttempt.lockedUntil = null;
+            // await loginAttempt.save();
+        // }
 
         let payload = {
             id : user._id,
@@ -214,12 +216,14 @@ const userLogin = async(req, res)=>{
             secure: true,          
             sameSite: 'strict',
             maxAge: 2 * 60 * 60 * 1000
-        }).status(200).json({
+        }).json({
             message : `Login Success. Welcome ${user.name}`,
             success : true,
+            token : accessToken
         });
 
     } catch (error) {
+        console.log("**************** ", error);
         res.status(500).json({ 
             message: "Server Error", 
             error: error.message, 
@@ -352,7 +356,7 @@ const updatePassword = async(req,res)=>{
 
         if(!isPasswordCorrect){
             return res.status(400).json({
-                message : "Current Pasword is Invalid",
+                message : "Current Passowrd is Invalid",
                 success : false
             });
         }
@@ -368,7 +372,7 @@ const updatePassword = async(req,res)=>{
         await user.save();
 
         res.status(200).json({
-            message : "Passwod changed Successfully",
+            message : "Password Changed Successfully",
             success : true
         });
 
@@ -381,4 +385,12 @@ const updatePassword = async(req,res)=>{
     }
 }
 
-export {userRegistration, verifyEmailToken, userLogin, userLogout ,currentUser, updateProfile, updatePassword};
+export {
+    userRegistration, 
+    verifyEmailToken, 
+    userLogin, 
+    userLogout ,
+    currentUser, 
+    updateProfile, 
+    updatePassword
+};
