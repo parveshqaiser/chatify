@@ -14,13 +14,14 @@
 ### 2. Mesaage
 
 - Message Individual
-- Groups / Rooms  
+- Edit/ Delete / Update chat individual
+- Message Groups / Rooms  
+- Edit/ Delete / Update chat groups
 - Upload pics, Videos, Emojis 
-- AI integration 
-- Update / Edit chat, pics, videos, emojis
 - Clear all conversation
 - Green if online & red if offline
 - last seen feature like last seen 2 mins ago
+- AI integration 
 
 ## Models
 
@@ -47,12 +48,19 @@
 - `POST /resend-email-verification` - Resend verification email (secured)
 
 
-**Message Routes** (`/api/v1/message/`)
+**Message Routes** (`/api/v1/chat/`)
 
-- `POST` - Send Message (secured)
+**Message Individual**
+- `POST` - Send Message 2 person (secured)
+- `GET` - Get All Messages between two users
 - `PATCH /edit-chat` -  Update/ edit user meesage (secured)
 - `DELETE /chat` - Update User Profile (secured)
--  `GET / chat` - Get All Messages between two users or group of users
+
+**Message Group** (`/api/v1/chat/group`)
+- `POST` - Send Message 3 or more person (secured)
+- `GET` - Get All Messages of the group
+- `PATCH /edit-chat` -  Update/ edit user meesage (secured)
+- `DELETE /chat` - Update User Profile (secured)
 
 
 
