@@ -254,7 +254,7 @@ const userLogout = async(req, res)=>{
             secure: true,
             // httpOnly: true,
         }).json({
-            message : "Logout Success",
+            message : `Logout Success ${user.name}`,
             success : true
         })
 

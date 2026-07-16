@@ -68,7 +68,6 @@ const sendMessage = async(req, res)=>{
     }
 }
 
-
 const getAllMessage = async(req, res)=>{
     try {
         let loggedInUser = req.user.id; // sender id
@@ -80,7 +79,6 @@ const getAllMessage = async(req, res)=>{
                 success : false
             })
         }
-
 
         let chat = await ChatModel.findOne({
             participants : {
@@ -104,4 +102,77 @@ const getAllMessage = async(req, res)=>{
     }
 }
 
-export {sendMessage, getAllMessage};
+// individual message
+const deleteMessage = async (req, res)=>{
+    try {
+        let loggedInUser = req.user.id; // sender id
+        let targetUserId = req.params.id;
+        let deleteMsgId = req.params.msgId;
+
+        // console.log("deleteMsgId ", deleteMsgId);
+
+        if(loggedInUser == targetUserId.toString()){
+            return res.status(400).json({
+                message : "Logged In User & Target User id cannot be same",
+                success : false
+            })
+        }
+
+        let chat = await ChatModel.findOne({
+            participants : {
+                $all: [loggedInUser, targetUserId],
+                $size :2
+            }
+        });
+
+        if (!chat) {
+            return res.status(404).json({
+                message: "Chat not found",
+                success: false,                
+            });
+        }
+
+
+        let msgIndex = chat.message.findIndex(msg => msg._id.toString() == deleteMsgId);
+
+        if(msgIndex === -1){
+            return res.status(404).json({
+                message : "Message Not found",
+                success : false
+            });
+        }
+
+        let userMessage = chat.message[msgIndex];
+
+        if(userMessage.senderId.toString() !== loggedInUser){
+            return res.status(403).json({
+                message: "You can only delete your own messages",
+                success : false
+            });
+        }
+
+        chat.message.splice(msgIndex,1);
+
+        await chat.save();
+
+        res.status(200).json({
+            message : "Chat Deleted",
+            success : true
+        });
+
+        
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+
+export {
+    sendMessage, 
+    getAllMessage,
+    deleteMessage,
+};
