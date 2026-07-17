@@ -144,8 +144,7 @@ const deleteMessage = async (req, res)=>{
 
         let userMessage = chat.message[msgIndex];
 
-        console.log("userMessage         ", userMessage) 
-
+        // if loggedinuser id & sender id of that message is same that only you can delete, means you can't delete other message
         if(userMessage.senderId.toString() !== loggedInUser){
             return res.status(403).json({
                 message: "You can only delete your own messages",
@@ -153,17 +152,81 @@ const deleteMessage = async (req, res)=>{
             });
         }
 
-        // chat.message.splice(msgIndex,1);
-
-        // await chat.save();
+        chat.message.splice(msgIndex,1);
+        await chat.save();
 
         res.status(200).json({
             message : "Chat Deleted",
             success : true.valueOf,
             data : chat 
         });
-
         
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+const clearConversation = async(req, res)=>{
+    try {
+        
+        let loggedInUser = req.user.id;
+        let targetUserId = req.params.id;
+
+        if(loggedInUser == targetUserId.toString()){
+            return res.status(400).json({
+                message : "Logged In User & Target User id cannot be same",
+                success : false
+            })
+        }
+
+        let chat = await ChatModel.findOneAndDelete({
+            participants : {
+                $all : [loggedInUser, targetUserId],
+                $size :2
+            }
+        })
+
+        if (!chat) {
+            return res.status(404).json({
+                message: "Conversation not found.",
+                success: false,               
+            });
+        }
+
+        let data = {
+            id : chat._id
+        };
+
+        // this approach is not good as it still contains the _id of the doc
+        // let chat = await ChatModel.findOneAndUpdate(
+        //     {
+        //         participants: {
+        //             $all: [loggedInUser, targetUserId],
+        //             $size: 2
+        //         }
+        //     },
+        //     {
+        //         $set: {
+        //             participants: [],
+        //             message: []
+        //         }
+        //     },
+        //     {
+        //         // new: true
+        //         returnDocument: "after"
+        //     }
+        // );
+
+        res.status(200).json({
+            message : "Conversation Deleted Successfully",
+            success : true,
+            data : data
+        });
+
     } catch (error) {
         res.status(500).json({ 
             message: "Server Error", 
@@ -178,4 +241,5 @@ export {
     sendMessage, 
     getAllMessage,
     deleteMessage,
+    clearConversation
 };
