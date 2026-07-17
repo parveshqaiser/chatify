@@ -54,7 +54,8 @@
 - `POST` - Send Message 2 person (secured)
 - `GET` - Get All Messages between two users
 - `PATCH /edit-chat` -  Update/ edit user meesage (secured)
-- `DELETE /chat` - Update User Profile (secured)
+- `DELETE /chat` - Delete User Message (secured)
+- `DELETE /chat` - Delete entire conversation between two users (secured)
 
 **Message Group** (`/api/v1/chat/group`)
 - `POST` - Send Message 3 or more person (secured)
