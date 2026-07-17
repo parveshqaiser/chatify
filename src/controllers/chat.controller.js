@@ -18,11 +18,11 @@ const sendMessage = async(req, res)=>{
             });
         }
 
-        let user = await UserModel.findById(targetUserId); // only verified user must come
+        let user = await UserModel.findOne({_id:targetUserId, isEmailVerified:true}); // only verified user must come
 
         if(!user){
             return res.status(404).json({
-                message : "Receiver User does not exist",
+                message : "Target User does not exist",
                 success : false
             })
         }
