@@ -1,7 +1,11 @@
 
 import express from "express";
 import userAuthentication from "../middlewares/auth.middleware.js";
-import { deleteMessage, getAllMessage, sendMessage } from "../controllers/chat.controller.js";
+import { 
+    deleteMessage, 
+    getAllMessage, 
+    sendMessage, 
+    } from "../controllers/chat.controller.js";
 
 const router = express.Router();
 
