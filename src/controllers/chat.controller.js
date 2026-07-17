@@ -8,7 +8,7 @@ const sendMessage = async(req, res)=>{
     try {
         let loggedInUser = req.user.id; // sender id
 
-        let targetUserId = req.params.id;
+        let {targetUserId} = req.params;
         let {msg} = req.body;
 
         if (!msg || msg.trim().length === 0) {
@@ -27,13 +27,11 @@ const sendMessage = async(req, res)=>{
             })
         }
 
-        
-       let chat = await ChatModel.findOne({
+        let chat = await ChatModel.findOne({
             participants : {
                 $all : [loggedInUser, targetUserId]
             },
-        }).populate({path: "message.senderId", select : "name"})
-
+        }).populate({path: "message.senderId", select : "name"});
 
         let createChat;  // creating new chat
 
@@ -71,7 +69,7 @@ const sendMessage = async(req, res)=>{
 const getAllMessage = async(req, res)=>{
     try {
         let loggedInUser = req.user.id; // sender id
-        let targetUserId = req.params.id;
+        let {targetUserId} = req.params;
 
         if(loggedInUser == targetUserId.toString()){
             return res.status(400).json({
@@ -106,10 +104,7 @@ const getAllMessage = async(req, res)=>{
 const deleteMessage = async (req, res)=>{
     try {
         let loggedInUser = req.user.id; // sender id
-        let targetUserId = req.params.id;
-        let deleteMsgId = req.params.msgId;
-
-        // console.log("deleteMsgId ", deleteMsgId);
+        let {targetUserId, messageId} = req.params;
 
         if(loggedInUser == targetUserId.toString()){
             return res.status(400).json({
@@ -132,8 +127,7 @@ const deleteMessage = async (req, res)=>{
             });
         }
 
-
-        let msgIndex = chat.message.findIndex(msg => msg._id.toString() == deleteMsgId);
+        let msgIndex = chat.message.findIndex(msg => msg._id.toString() == messageId);
 
         if(msgIndex === -1){
             return res.status(404).json({
@@ -174,7 +168,7 @@ const clearConversation = async(req, res)=>{
     try {
         
         let loggedInUser = req.user.id;
-        let targetUserId = req.params.id;
+        let {targetUserId} = req.params;
 
         if(loggedInUser == targetUserId.toString()){
             return res.status(400).json({

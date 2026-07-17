@@ -10,10 +10,10 @@ import {
 
 const router = express.Router();
 
-router.post("/send/:id", userAuthentication, sendMessage);
-router.get("/:id", userAuthentication, getAllMessage);
-router.delete("/:id/:msgId", userAuthentication, deleteMessage);
-router.delete("/:id", userAuthentication , clearConversation);
+router.post("/send/:targetUserId", userAuthentication, sendMessage);
+router.get("/:targetUserId", userAuthentication, getAllMessage);
+router.delete("/:targetUserId/message/:messageId", userAuthentication, deleteMessage);
+router.delete("/:targetUserId", userAuthentication , clearConversation);
 
 
 export default router;
