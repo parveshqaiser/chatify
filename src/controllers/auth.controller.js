@@ -211,6 +211,12 @@ const userLogin = async(req, res)=>{
         user.status = "online";
         await user.save();
 
+        let data = {
+            id: user._id,
+            email : user.email,
+            name : user.name
+        }
+
         res.status(200).cookie("token", accessToken,{ 
             // httpOnly: true,
             secure: true,          
@@ -219,7 +225,8 @@ const userLogin = async(req, res)=>{
         }).json({
             message : `Login Success. Welcome ${user.name}`,
             success : true,
-            token : accessToken
+            token : accessToken,
+            data : data
         });
 
     } catch (error) {
