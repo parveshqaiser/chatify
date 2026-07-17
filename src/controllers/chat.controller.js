@@ -30,7 +30,7 @@ const sendMessage = async(req, res)=>{
         
        let chat = await ChatModel.findOne({
             participants : {
-                $in : [loggedInUser, targetUserId]
+                $all : [loggedInUser, targetUserId]
             },
         }).populate({path: "message.senderId", select : "name"})
 
@@ -144,6 +144,8 @@ const deleteMessage = async (req, res)=>{
 
         let userMessage = chat.message[msgIndex];
 
+        console.log("userMessage         ", userMessage) 
+
         if(userMessage.senderId.toString() !== loggedInUser){
             return res.status(403).json({
                 message: "You can only delete your own messages",
@@ -151,13 +153,14 @@ const deleteMessage = async (req, res)=>{
             });
         }
 
-        chat.message.splice(msgIndex,1);
+        // chat.message.splice(msgIndex,1);
 
-        await chat.save();
+        // await chat.save();
 
         res.status(200).json({
             message : "Chat Deleted",
-            success : true
+            success : true.valueOf,
+            data : chat 
         });
 
         
