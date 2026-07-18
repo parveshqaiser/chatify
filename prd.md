@@ -64,7 +64,6 @@
 - `DELETE /chat` - Update User Profile (secured)
 
 
-
 ### 3. Security Features
 
 - JWT-based authentication with refresh tokens
