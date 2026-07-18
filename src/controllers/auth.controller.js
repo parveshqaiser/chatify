@@ -142,8 +142,6 @@ const userLogin = async(req, res)=>{
 
         let loginAttempt = await LoginAttemptModel.findOne({email});
 
-        console.log("******************* ", loginAttempt);
-
         if (loginAttempt && loginAttempt.lockedUntil && loginAttempt.lockedUntil > Date.now()) 
         {
             let remainingMinutes = Math.ceil((loginAttempt.lockedUntil - Date.now()) / 60000);
@@ -179,9 +177,10 @@ const userLogin = async(req, res)=>{
                 attempts.failedAttempts +=1;
                 attempts.lastAttemptAt = Date.now();
 
-                if(attempts.failedAttempts >= 5){
+                if(attempts.failedAttempts >= 4){
                     attempts.lockedUntil = Date.now() +(15 * 60 *1000) // 15 mins
                     attempts.failedAttempts = 0;
+                    attempts.isAccountLocked = true
                 }
 
                 await attempts.save();
@@ -193,11 +192,16 @@ const userLogin = async(req, res)=>{
             })
         }
 
-        // if(isPasswordCorrect || loginAttempt == null){
-            // loginAttempt.failedAttempts = 0;
-            // loginAttempt.lockedUntil = null;
-            // await loginAttempt.save();
-        // }
+        if(isPasswordCorrect)
+        {
+            // await LoginAttemptModel.deleteOne({ email });
+           if(loginAttempt !==null){
+                loginAttempt.failedAttempts =0;
+                loginAttempt.lockedUntil = null;
+                loginAttempt.isAccountLocked = false;
+                await loginAttempt.save();
+           }
+        }
 
         let payload = {
             id : user._id,
@@ -230,7 +234,7 @@ const userLogin = async(req, res)=>{
         });
 
     } catch (error) {
-        console.log("**************** ", error);
+        // console.log("**************** ", error);
         res.status(500).json({ 
             message: "Server Error", 
             error: error.message, 
