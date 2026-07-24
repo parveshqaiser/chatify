@@ -11,17 +11,18 @@
 - **Email Verification:** Account verification via email tokens (AWS SES)
 - **Token Management:** Access token refresh mechanism
 
-### 2. Mesaage
+### 2. Messages
 
-- Message Individual
-- Edit/ Delete / Update chat individual
-- Message Groups / Rooms  
-- Edit/ Delete / Update chat groups
-- Upload pics, Videos, Emojis 
-- Clear all conversation
-- Green if online & red if offline
-- last seen feature like last seen 2 mins ago
-- AI integration 
+- Individual messaging
+- Edit, delete, and update individual messages
+- Create/Add Groups
+- Edit/Delete Group Names
+- Edit / Delete Group Messages
+- Upload pictures, videos, documents, and emojis
+- Clear entire conversation
+- Online status indicator (green = online, red = offline)
+- Last seen status (e.g., "Last seen 2 minutes ago")
+- AI integration
 
 ## Models
 
@@ -34,8 +35,8 @@
 
 **Authentication Routes** (`/api/v1/auth/`)
 
-- `POST /register` - User registration
-- `POST /login` - User authentication
+- `POST /register` - User egistration
+- `POST /login` - User login
 - `POST /logout` - User logout (secured)
 - `GET /current-user` - Get current user info (secured)
 - `POST /change-password` - Change user password (secured)
