@@ -416,6 +416,27 @@ const updatePassword = async(req,res)=>{
     }
 }
 
+const fetchAllUsers = async(req, res)=>{
+    try {
+        let {email} = req.user; // loggedin user
+
+        let users = await UserModel.find({email : {$ne : email}}).select("-password -refreshToken");
+
+        res.status(200).json({
+            message : "Date Fetched",
+            success : true,
+            data : users
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 export {
     userRegistration, 
     verifyEmailToken, 
@@ -423,5 +444,6 @@ export {
     userLogout ,
     currentUser, 
     updateProfile, 
-    updatePassword
+    updatePassword,
+    fetchAllUsers
 };
