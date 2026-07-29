@@ -7,6 +7,7 @@ import { generateEmailVerificationToken } from "../utils/generateToken.js";
 import crypto from "node:crypto";
 import path from "node:path";
 import LoginAttemptModel from "../models/login.model.js";
+import { allowedDomains } from "../utils/constants.js";
 
 const userRegistration = async(req, res)=>{
 
@@ -32,6 +33,14 @@ const userRegistration = async(req, res)=>{
                 success : false
             })
         }
+
+        if(!allowedDomains.some(domain => email.endsWith(domain))){
+            return res.status(400).json({
+                message : "Please enter a valid Gmail, Hotmail, or Yahoo email address",
+                success : false
+            });
+        }
+
 
         let user = await UserModel.findOne({$or : [{username,email}]});
 
