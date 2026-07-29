@@ -13,6 +13,8 @@ const userRegistration = async(req, res)=>{
     try {
         let {name, username, password, email} = req.body;
 
+        console.log(req.body);
+
         // check for email std format, username min chars, password min chars using express-validator
 
         let errMessage = checkInputValidation(name, username, password, email); // better to send like this because if you send the whole req.body it treats as arry of obj
@@ -20,6 +22,13 @@ const userRegistration = async(req, res)=>{
         if(errMessage){
             return res.status(400).json({
                 message : errMessage,
+                success : false
+            })
+        }
+
+        if (password.length <=5){
+            return res.status(400).json({
+                message : "Password should be min 6 chars",
                 success : false
             })
         }
