@@ -3,13 +3,15 @@ import nodemailer from "nodemailer";
 import { emailTemplate } from "../utils/mailgen.js";
 
 export let transport = nodemailer.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    // host: "smtp.gmail.com",
-    port: 2525,
+    // host: "sandbox.smtp.mailtrap.io",
+    host: "smtp.gmail.com",
+    service :"gmail",
+    // port: 2525,
+    port : 587,
     secure: false,
     auth: {
-        user: "6da6413592de86",
-        pass: "1a00889f84a998"
+        user : process.env.EMAIL_USER,
+        pass : process.env.EMAIL_PASS
     },
     tls : {
         rejectUnauthorized: false
@@ -20,8 +22,9 @@ export let sendEmailToUser = async(email,name, verificationURL)=>{
 
     let {text, html} = emailTemplate(name, verificationURL);
 
-    return transport.sendMail({
-        from: '"Chatify" <chatify.test@gmail.com>',
+    return await transport.sendMail({
+        // from: 'chatify@gmail.com',
+        from: process.env.EMAIL_USER,
         to: email,
         // subject: "Welcome to Chatify - Verify Your Account",
         subject : "Confirmation Instructions for Chatify Account",
