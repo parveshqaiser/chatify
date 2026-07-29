@@ -14,8 +14,6 @@ const userRegistration = async(req, res)=>{
     try {
         let {name, username, password, email} = req.body;
 
-        console.log(req.body);
-
         // check for email std format, username min chars, password min chars using express-validator
 
         let errMessage = checkInputValidation(name, username, password, email); // better to send like this because if you send the whole req.body it treats as arry of obj
@@ -76,10 +74,14 @@ const userRegistration = async(req, res)=>{
         }
 
         let verificationURL = `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unhashedToken}`;
+
+        try {
+            let emailResult = await sendEmailToUser(email,name, verificationURL);
+            console.log("----- waiting for message id ", emailResult.messageId);
+        } catch (emailError) {
+            console.log("some error in email ", emailError);
+        }
        
-        sendEmailToUser(email,name, verificationURL).catch(err =>{
-            console.error("Background email failed: ", err);
-        });
 
         res.status(201).json({
             message : "User Verification Email sent Successfully. Please check your email",
