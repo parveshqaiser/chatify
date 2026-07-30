@@ -420,7 +420,10 @@ const fetchAllUsers = async(req, res)=>{
     try {
         let {email} = req.user; // loggedin user
 
-        let users = await UserModel.find({email : {$ne : email}}).select("-password -refreshToken");
+        let users = await UserModel.find({
+            email : {$ne : email}, 
+            isEmailVerified : true
+        }).select("-password -refreshToken");
 
         res.status(200).json({
             message : "Date Fetched",
