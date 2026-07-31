@@ -1,5 +1,5 @@
 import express from "express";
-import { currentUser, fetchAllUsers, updatePassword, updateProfile, userLogin, userLogout, userRegistration, verifyEmailToken } from "../controllers/auth.controller.js";
+import { currentUser, fetchAllUsers, generateAccessToken, updatePassword, updateProfile, userLogin, userLogout, userRegistration, verifyEmailToken } from "../controllers/auth.controller.js";
 import userAuthentication from "../middlewares/auth.middleware.js";
 
 let router = express.Router();
@@ -15,6 +15,7 @@ router.get("/allusers", userAuthentication, fetchAllUsers);
 router.patch("/update-profile", userAuthentication, updateProfile);
 
 router.post("/change-password", userAuthentication,updatePassword);
+router.get("/generate/access-token", generateAccessToken);
 
 export default router;
 
