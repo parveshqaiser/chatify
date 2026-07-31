@@ -223,7 +223,7 @@ const userLogin = async(req, res)=>{
         };
 
         let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"2h"});
-        let refreshToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"7d"});
+        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"7d"});
 
         user.refreshToken = refreshToken;
         user.status = "online";
@@ -436,6 +436,67 @@ const fetchAllUsers = async(req, res)=>{
     }
 }
 
+const generateAccessToken = async()=>{
+    try {
+        let incomingRefreshToken  = req.cookies?.refreshToken;
+
+        if (!incomingRefreshToken) {
+            return res.status(401).json({
+                message: "No Refresh Token provided",
+                success: false
+            });
+        }
+
+        let verifyToken = jwt.verify(incomingRefreshToken, process.env.JWT_REFRESH_SECRET_KEY);
+
+        let user = await UserModel.findOne({
+            _id: verifyToken.id
+        }).select("-password");
+
+        if(!user){
+            return res.status(404).json({
+                message : "User Does not Exists", 
+                succcess : false
+            });
+        }
+
+        if(incomingRefreshToken != user.refreshToken){
+            return res.status(401).json({
+                message : "Refresh Token is used or expired", 
+                success : false
+            });
+        }
+
+        let payload = {
+            id : user._id,
+            email : user.email
+        };
+
+        let newAccessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn : "2h"});
+        // let newRefreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"7d"});
+
+        // user.refreshToken = newRefreshToken;
+        // await user.save();
+
+        res.cookie("token", newAccessToken,{
+            sameSite : "strict",
+            secure: false,
+            httpOnly: true, 
+            maxAge: 2 * 60 * 60 * 1000,
+        }).status(200).json({
+            message : `Access Token Generated Successfully`,
+            success : true,
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 export {
     userRegistration, 
     verifyEmailToken, 
@@ -444,5 +505,6 @@ export {
     currentUser, 
     updateProfile, 
     updatePassword,
-    fetchAllUsers
+    fetchAllUsers,
+    generateAccessToken
 };
