@@ -130,17 +130,13 @@ const verifyEmailToken = async(req, res)=>{
             }
         );
 
-        if(!user){
-            // return res.status(400).json({
-            //     message : "Invalid or Expired Token",
-            //     success : false
-            // });
+        if(!user)
+        {
             return res.sendFile(
                 path.join(process.cwd(),"public","email-invalid.html")
             )
         }
         
-
         // return res.redirect(`${req.protocol}://${req.get("host")}/api/v1/users/email-verification-success`);
         res.sendFile(
             path.join(process.cwd(), "public", "email-success.html")
@@ -156,8 +152,8 @@ const verifyEmailToken = async(req, res)=>{
 }
 
 const userLogin = async(req, res)=>{
+    
     try {
-        
         let {email, password} = req.body;
 
         let loginAttempt = await LoginAttemptModel.findOne({email});
@@ -202,10 +198,8 @@ const userLogin = async(req, res)=>{
                     attempts.failedAttempts = 0;
                     attempts.isAccountLocked = true
                 }
-
                 await attempts.save();
             }
-
             return res.status(400).json({
                 message : "Invalid Credentials",
                 success : false
@@ -241,12 +235,14 @@ const userLogin = async(req, res)=>{
             name : user.name
         }
 
-        res.status(200).cookie("token", accessToken,{ 
-            // httpOnly: true,
-            secure: true,          
-            sameSite: 'strict',
-            maxAge: 2 * 60 * 60 * 1000
-        }).json({
+    //    console.log(res.getHeaders());
+    
+        res.cookie("token", accessToken,{
+            sameSite : "strict",
+            secure: false,
+            httpOnly: true, 
+            maxAge: 2 * 60 * 60 * 1000,
+        }).status(200).json({
             message : `Login Success. Welcome ${user.name}`,
             success : true,
             token : accessToken,
@@ -255,7 +251,7 @@ const userLogin = async(req, res)=>{
 
     } catch (error) {
         // console.log("**************** ", error);
-        res.status(500).json({ 
+        return res.status(500).json({ 
             message: "Server Error", 
             error: error.message, 
             success: false 
@@ -282,12 +278,12 @@ const userLogout = async(req, res)=>{
 
         res.status(200).clearCookie("token",{
             sameSite: "strict",
-            secure: true,
-            // httpOnly: true,
+            secure: false,
+            httpOnly: true,
         }).json({
             message : `Logout Success ${user.name}`,
             success : true
-        })
+        });
 
     } catch (error) {
         res.status(500).json({ 

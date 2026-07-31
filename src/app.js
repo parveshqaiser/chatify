@@ -12,18 +12,17 @@ import chatRoutes from "./routes/chat.routes.js";
 
 let app = express();
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+// app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+
+let PORT = 7500 ?? 2500;
 
 app.use(cors({
     origin : ["http://localhost:5173","http://localhost:5174"],
     methods : ["GET", "POST", "PUT", "PATCH","DELETE"],
     credentials : true,
-    allowedHeaders : ["Content-Type", "Authorization"]
+    allowedHeaders : ["Content-Type", "Authorization"],
 }));
-
-
-let PORT = 7500 ?? 2500;
 
 let httpServer = http.createServer(app);
 initializeSocketConnection(httpServer);
@@ -50,11 +49,10 @@ dbConnection().then(()=>{
     console.log("DB connected");
 
     httpServer.listen(PORT, ()=>{
-        console.log(`Server is up at http:localhost:${PORT}`);
+        console.log(`Server is up at http://localhost:${PORT}`);
     });
 }).catch(err =>{
     console.log("Some Error in connecting DB");
-    process.exit(1);  
-    //if there is error , de establish the connection or exit the connection
+    process.exit(1);  //if there is error , de establish the connection or exit the connection
 })
 
