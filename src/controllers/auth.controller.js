@@ -222,8 +222,8 @@ const userLogin = async(req, res)=>{
             email : user.email
         };
 
-        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"2h"});
-        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"7d"});
+        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"2m"});
+        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"10m"});
 
         user.refreshToken = refreshToken;
         user.status = "online";
@@ -243,7 +243,8 @@ const userLogin = async(req, res)=>{
             httpOnly: true, 
             maxAge: 2 * 60 * 60 * 1000,
         }).status(200).json({
-            message : `Login Success. Welcome ${user.name}`,
+            // message : `Login Success. Welcome ${user.name}`,
+            message : `Login Success`,
             success : true,
             token : accessToken,
             data : data
@@ -352,7 +353,6 @@ const updateProfile = async(req, res)=>{
             message : "Profle Updated",
             success: true
         });
-
 
     } catch (error) {
         res.status(500).json({ 
