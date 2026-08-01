@@ -436,7 +436,7 @@ const fetchAllUsers = async(req, res)=>{
     }
 }
 
-const generateAccessToken = async()=>{
+const generateAccessToken = async(req, res)=>{
     try {
         let incomingRefreshToken  = req.cookies?.refreshToken;
 
@@ -489,6 +489,16 @@ const generateAccessToken = async()=>{
         });
 
     } catch (error) {
+
+        if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") 
+        {
+            return res.status(401).json({
+                success: false,
+                message: "Refresh token expired"
+            });
+
+        }
+        
         res.status(500).json({ 
             message: "Server Error", 
             error: error.message, 
