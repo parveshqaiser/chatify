@@ -222,8 +222,8 @@ const userLogin = async(req, res)=>{
             email : user.email
         };
 
-        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"2m"});
-        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"10m"});
+        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"2h"});
+        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"2d"});
 
         user.refreshToken = refreshToken;
         user.status = "online";

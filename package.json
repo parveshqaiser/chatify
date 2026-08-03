@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"test": "",
-		"start": "node --watch src/app.js"
+		"start": "nodemon src/app.js"
 	},
 	"keywords": [],
 	"author": "",
@@ -20,6 +20,7 @@
 		"mailgen": "^2.0.34",
 		"mongoose": "^9.7.3",
 		"nodemailer": "^9.0.3",
+		"nodemon": "^3.1.14",
 		"socket.io": "^4.8.3"
 	}
 }
