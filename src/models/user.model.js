@@ -36,7 +36,15 @@ let UserSchema = new mongoose.Schema({
     bio : {
         type : String,
         default : "Hey there !"
-    },   
+    }, 
+    lastLogin : {
+        type : Date,
+        default : null
+    },
+    previousLogin : {
+        type : Date,
+        default : null,
+    },
     lastseen : {
         type : Date
     },

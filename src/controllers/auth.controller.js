@@ -7,7 +7,7 @@ import { generateEmailVerificationToken } from "../utils/generateToken.js";
 import crypto from "node:crypto";
 import path from "node:path";
 import LoginAttemptModel from "../models/login.model.js";
-import { allowedDomains } from "../utils/constants.js";
+import { allowedDomains, generateDate } from "../utils/constants.js";
 
 const userRegistration = async(req, res)=>{
 
@@ -227,6 +227,9 @@ const userLogin = async(req, res)=>{
 
         user.refreshToken = refreshToken;
         user.status = "online";
+        user.previousLogin = user.lastLogin;
+        user.lastLogin = generateDate()
+
         await user.save();
 
         let data = {
@@ -398,12 +401,7 @@ const updatePassword = async(req,res)=>{
         }   
 
         user.password = newPassword;
-        user.lastPasswordUpdated = new Date().toLocaleString("en-IN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-            timeZone: "Asia/Kolkata"
-        });
+        user.lastPasswordUpdated = generateDate();
 
         await user.save();
         res.status(200).json({
