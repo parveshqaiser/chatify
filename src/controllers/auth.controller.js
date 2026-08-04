@@ -398,8 +398,14 @@ const updatePassword = async(req,res)=>{
         }   
 
         user.password = newPassword;
-        await user.save();
+        user.lastPasswordUpdated = new Date().toLocaleString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            timeZone: "Asia/Kolkata"
+        });
 
+        await user.save();
         res.status(200).json({
             message : "Password Changed Successfully",
             success : true
