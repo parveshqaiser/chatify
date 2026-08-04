@@ -21,6 +21,10 @@ let UserSchema = new mongoose.Schema({
         type : String,
         required : [true, "Password is required"]
     },
+    lastPasswordUpdated : {
+        type : Date,
+        default : null,
+    },
     status : {
         type : String,
         default : "offline",
@@ -53,7 +57,7 @@ let UserSchema = new mongoose.Schema({
     emailVerificationExpiry : {
         type : Date
     },
-     forgotPasswordToken : {
+    forgotPasswordToken : {
         type : String,
     },
     forgotPasswordExpiry : {
