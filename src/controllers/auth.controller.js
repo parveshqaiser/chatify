@@ -310,7 +310,7 @@ const currentUser = async(req, res)=>{
 
         res.status(200).json({
             message : "User Data Fetched",
-            dsta : user,
+            data : user,
             success : true
         });
 
@@ -366,8 +366,10 @@ const updateProfile = async(req, res)=>{
 const updatePassword = async(req,res)=>{
     try {
         let {password:existingPassword, newPassword,confirmPassword} = req.body;
+        // from front end i need to pass using passowrd key
 
         let errMessage = checkInputValidation(existingPassword, newPassword, confirmPassword);
+    
         if(errMessage){
             return res.status(400).json({
                 message : errMessage,
