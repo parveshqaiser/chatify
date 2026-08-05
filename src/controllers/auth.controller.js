@@ -100,6 +100,7 @@ const userRegistration = async(req, res)=>{
 const verifyEmailToken = async(req, res)=>{
     try {
         let emailToken = req.params.verificationToken;
+        // http://192.168.1.10:7500/api/v1/users/verify-email/abc123
 
         if (!emailToken) {
             return res.status(400).json({
