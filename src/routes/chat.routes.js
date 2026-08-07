@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-router.post("/send/:targetUserId", userAuthentication, sendMessage);
+router.post("/send/:targetUserId", userAuthentication, sendMessage); // this api in front end is not required
 router.get("/:targetUserId", userAuthentication, getAllMessage);
 router.delete("/:targetUserId/message/:messageId", userAuthentication, deleteMessage);
 router.delete("/:targetUserId", userAuthentication , clearConversation);
