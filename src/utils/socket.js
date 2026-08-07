@@ -1,5 +1,6 @@
 
 import { Server } from "socket.io";
+import { saveMessage } from "../services/chat.service.js";
 
 const initializeSocketConnection = (httpServer)=>{
     let io = new Server(httpServer, {
@@ -10,25 +11,26 @@ const initializeSocketConnection = (httpServer)=>{
     });
     
     io.on("connection",(socket)=>{
-        // handle events
-
+        console.log("Client connected", socket.id);
 
         socket.on("joinChat",({current, target})=>{
-            let room = [current,target].join("-");
+            let room = [current,target].sort().join("_");
 
             console.log("joined ", room);
             socket.join(room);
 
         });
 
-        socket.on("sendMessage",({current, target,text})=>{
-            let room = [current,target].join("-");
+        socket.on("sendMessage",async({current,target,text})=>{
+            let room = [current,target].sort().join("_");
 
-        
+            let chat = await saveMessage(current,target,text)
+
+            io.to(room).emit("receiveMessage",{current,target,text})
         });
 
         socket.on("disconnect",()=>{
-            
+            console.log("disconnected");
         });
     });
 }
