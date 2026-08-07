@@ -1,6 +1,7 @@
 
 import ChatModel from "../models/chat.model.js";
 import UserModel from "../models/user.model.js";
+import { saveMessage } from "../services/chat.service.js";
 
 
 const sendMessage = async(req, res)=>{
@@ -18,50 +19,18 @@ const sendMessage = async(req, res)=>{
             });
         }
 
-        let user = await UserModel.findOne({_id:targetUserId, isEmailVerified:true}); // only verified user must come
-
-        if(!user){
-            return res.status(404).json({
-                message : "Target User does not exist",
-                success : false
-            })
-        }
-
-        let chat = await ChatModel.findOne({
-            participants : {
-                $all : [loggedInUser, targetUserId]
-            },
-        }).populate({path: "message.senderId", select : "name"});
-
-        let createChat;  // creating new chat
-
-        if(!chat)
-        {
-            chat = await ChatModel.create({
-                participants : [loggedInUser, targetUserId],
-                message : [{senderId : loggedInUser, receiverId : targetUserId , msg : msg}]
-            })
-        }else {
-            chat.message.push({
-                senderId : loggedInUser, 
-                receiverId : targetUserId , 
-                msg : msg.trim()
-            });
-
-            await chat.save();
-        }
-
+        let chat = await saveMessage(loggedInUser,targetUserId, msg);
+        
         res.status(200).json({
             message : "Message Sent Successfully",
             success : true,
             data : chat
         });
 
-    } catch (error) {
-        res.status(500).json({ 
-            message: "Server Error", 
-            error: error.message, 
-            success: false 
+    } catch (err) {
+        res.status(err.statusCode || 500).json({
+            success: false,
+            message: err.message || "Server Error",
         });
     }
 }
