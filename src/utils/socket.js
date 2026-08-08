@@ -2,6 +2,8 @@
 import { Server } from "socket.io";
 import { saveMessage } from "../services/chat.service.js";
 
+let onlineUsers = new Map();
+
 const initializeSocketConnection = (httpServer)=>{
     let io = new Server(httpServer, {
         cors : {
@@ -11,6 +13,14 @@ const initializeSocketConnection = (httpServer)=>{
     });
     
     io.on("connection",(socket)=>{
+
+        socket.on("register",(userId)=>{
+            onlineUsers.set(userId, socket.id);
+
+            // notify all clients
+            io.emit("onlineUsers", [...onlineUsers.keys()]);
+        })
+
         socket.on("joinChat",({current, target})=>{
             let room = [current,target].sort().join("_");
             socket.join(room);
@@ -23,8 +33,13 @@ const initializeSocketConnection = (httpServer)=>{
         });
 
         socket.on("disconnect",()=>{
-            console.log("disconnected");
-            // show all users from logged in 
+            for (const [userId, socketId] of onlineUsers.entries()) {
+                if (socketId === socket.id) {
+                    onlineUsers.delete(userId);
+                    break;
+                }
+            }
+            io.emit("onlineUsers", [...onlineUsers.keys()]);
         });
     });
 }
