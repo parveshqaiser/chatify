@@ -1,6 +1,6 @@
 
 import { Server } from "socket.io";
-import { saveMessage } from "../services/chat.service.js";
+import { editMessageService, saveMessage } from "../services/chat.service.js";
 
 let onlineUsers = new Map();
 
@@ -26,10 +26,19 @@ const initializeSocketConnection = (httpServer)=>{
             socket.join(room);
         });
 
-        socket.on("sendMessage",async({current,target,text})=>{
+        socket.on("sendMessage",async({current,target,text, messageId,isEdit})=>{
+            // console.log(current,target,text, messageId,isEdit)
             let room = [current,target].sort().join("_");
-            let chat = await saveMessage(current,target,text);
-            io.to(room).emit("receiveMessage",{current,target,text})
+            let chat;
+
+            if(isEdit){
+                await editMessageService (current,target,messageId,text)
+            }else{
+                chat = await saveMessage(current,target,text);
+            }
+
+            // io.to(room).emit("receiveMessage",{current,target,text})
+            io.to(room).emit("receiveMessage") // in front end called refetching method
         });
 
         socket.on("disconnect",()=>{

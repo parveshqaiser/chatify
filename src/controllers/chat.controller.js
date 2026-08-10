@@ -1,7 +1,7 @@
 
 import ChatModel from "../models/chat.model.js";
 import UserModel from "../models/user.model.js";
-import { saveMessage } from "../services/chat.service.js";
+import { editMessageService, saveMessage } from "../services/chat.service.js";
 
 
 const sendMessage = async(req, res)=>{
@@ -212,37 +212,7 @@ const editMessage = async(req, res)=>{
             })
         }
 
-        let chat = await ChatModel.findOne({
-            participants : {
-                $all: [loggedInUser, targetUserId],
-                $size: 2
-            }
-        });
-
-        if (!chat) {
-            return res.status(404).json({
-                message: "Conversation not found.",
-                success: false,               
-            });
-        }
-
-        let messageIndex = chat.message.findIndex(msg => msg._id == messageId);
-    
-        if(messageIndex === -1){
-            return res.status(404).json({
-                message : "Message Not found",
-                success : false
-            });
-        }
-
-        let userMessage = chat.message[messageIndex];
-
-        if(userMessage.senderId.toString() !== loggedInUser){
-            return res.status(403).json({
-                message: "You can only Edit your own messages",
-                success : false
-            });
-        }
+       let chat = editMessageService(loggedInUser, targetUserId, messageId, msg);
 
         // chat.message = chat.message.map((val, idx)=>{
         //     if (messageIndex == idx){
@@ -263,10 +233,9 @@ const editMessage = async(req, res)=>{
         });
 
     } catch (error) {
-        res.status(500).json({ 
-            message: "Server Error", 
-            error: error.message, 
-            success: false 
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Server Error",
         });
     }
 }
