@@ -119,7 +119,7 @@ const deleteMessage = async (req, res)=>{
         await chat.save();
 
         res.status(200).json({
-            message : "Chat Deleted",
+            message : "Message Deleted",
             success : true,
             data : chat 
         });
