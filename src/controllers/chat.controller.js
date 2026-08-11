@@ -155,7 +155,7 @@ const clearConversation = async(req, res)=>{
 
         if (!chat) {
             return res.status(404).json({
-                message: "Conversation not found.",
+                message: "Start Conversation to Delete",
                 success: false,               
             });
         }
