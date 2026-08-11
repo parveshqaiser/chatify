@@ -228,6 +228,10 @@ const userLogin = async(req, res)=>{
 
         user.refreshToken = refreshToken;
         user.status = "online";
+
+        // user.previousLogin = user.lastLogin; from todo backedn
+        // user.lastLogin = new Date().toLocaleDateString();
+
         user.previousLogin = user.lastLogin;
         user.lastLogin = generateDate()
 
