@@ -57,6 +57,7 @@ export let editMessageService = async(loggedInUser,targetUserId, messageId,msg)=
     }
     
     let messageIndex = chat.message.findIndex(msg => msg._id == messageId);
+    // console.log("messageIndex ", messageIndex);
 
     if(messageIndex === -1){
         const error = new Error("Message not found");

@@ -31,6 +31,8 @@ const initializeSocketConnection = (httpServer)=>{
             let room = [current,target].sort().join("_");
             let chat;
 
+            // console.log("*************** ", current,target,text, messageId,isEdit);
+
             if(isEdit){
                 await editMessageService (current,target,messageId,text)
             }else{
