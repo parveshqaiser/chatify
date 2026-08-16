@@ -1,4 +1,5 @@
 
+import mongoose from "mongoose";
 import ChatModel from "../models/chat.model.js";
 import UserModel from "../models/user.model.js";
 import { editMessageService, saveMessage } from "../services/chat.service.js";
@@ -35,8 +36,84 @@ const sendMessage = async(req, res)=>{
     }
 }
 
+/*
 const getAllMessage = async(req, res)=>{
     try {
+        let loggedInUser = req.user.id;
+        let {targetUserId} = req.params;
+
+        if(loggedInUser == targetUserId.toString()){
+            return res.status(400).json({
+                message : "Logged In User & Target User id cannot be same",
+                success : false
+            })
+        }
+
+        let page = parseInt(req.query.page) || 1;
+        let limit = Math.min(parseInt(req.query.limit) || 10, 20);
+        let skip = (page - 1) * limit;
+
+        let chat = await ChatModel.findOne({
+            participants: {
+                $all: [
+                    new mongoose.Types.ObjectId(loggedInUser),
+                    new mongoose.Types.ObjectId(targetUserId)
+                ]
+            }
+        });
+
+        if (!chat) {
+            return res.status(200).json({
+                message: "No Conversation started",
+                success: true,
+                data: {
+                    messages: [],
+                    pagination: {
+                        currentPage: page,
+                        totalPages: 0,
+                        totalMessages: 0,
+                        hasMore: false
+                    }
+                }
+            });
+        }
+
+        let totalMessages = chat.message.length;
+        let totalPages = Math.ceil(totalMessages / limit);
+
+        // Get paginated messages (from newest to oldest)
+        let messages = chat.message
+            .slice(-(skip + limit), totalMessages - skip)
+            .slice(0, limit);
+
+        res.status(200).json({
+            message: messages.length === 0 ? "No messages found" : "Data fetched",
+            success: true,
+            data: {
+                messages: messages || [],
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    totalMessages: totalMessages,
+                    hasMore: page * limit < totalMessages
+                }
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
+*/
+
+const getAllMessage = async(req, res)=>{
+
+     try {
         let loggedInUser = req.user.id; // sender id
         let {targetUserId} = req.params;
 
@@ -59,17 +136,17 @@ const getAllMessage = async(req, res)=>{
             success : true,
             data : chat == null ? [] : chat 
         });
-
-    } catch (error) {
+    } catch (error){
         res.status(500).json({ 
             message: "Server Error", 
             error: error.message, 
             success: false 
         });
     }
+
 }
 
-// individual message
+//  individual message
 const deleteMessage = async (req, res)=>{
     try {
         let loggedInUser = req.user.id; // sender id
