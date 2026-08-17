@@ -20,6 +20,7 @@ const sendMessage = async(req, res)=>{
             });
         }
 
+        // no need to pass when working with socket events
         let chat = await saveMessage(loggedInUser,targetUserId, msg);
         
         res.status(200).json({
