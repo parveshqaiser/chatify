@@ -223,7 +223,7 @@ const userLogin = async(req, res)=>{
             email : user.email
         };
 
-        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"2h"});
+        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"5m"});
         let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"2d"});
 
         user.refreshToken = refreshToken;
@@ -244,14 +244,17 @@ const userLogin = async(req, res)=>{
         }
 
     //    console.log(res.getHeaders());
-    
-        res.cookie("token", accessToken,{
+
+        let cookieOptions = {
             sameSite : "strict",
             secure: false,
             httpOnly: true, 
-            maxAge: 2 * 60 * 60 * 1000,
-        }).status(200).json({
-            // message : `Login Success. Welcome ${user.name}`,
+            // maxAge: 2 * 60 * 60 * 1000,
+        };
+    
+        res.cookie("token", accessToken,cookieOptions)
+        .cookie("refreshToken",refreshToken, cookieOptions) 
+        .status(200).json({
             message : `Login Success`,
             success : true,
             token : accessToken,
@@ -259,7 +262,6 @@ const userLogin = async(req, res)=>{
         });
 
     } catch (error) {
-        // console.log("**************** ", error);
         return res.status(500).json({ 
             message: "Server Error", 
             error: error.message, 
@@ -285,11 +287,14 @@ const userLogout = async(req, res)=>{
             });
         }
 
-        res.status(200).clearCookie("token",{
+        let options = {
             sameSite: "strict",
             secure: false,
             httpOnly: true,
-        }).json({
+        };
+
+        res.status(200).clearCookie("token",options)
+        .clearCookie("refreshToken", options).json({
             message : `Logout Success ${user.name}`,
             success : true
         });
@@ -483,7 +488,7 @@ const generateAccessToken = async(req, res)=>{
             email : user.email
         };
 
-        let newAccessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn : "2h"});
+        let newAccessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn : "5m"});
         // let newRefreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"7d"});
 
         // user.refreshToken = newRefreshToken;
@@ -493,7 +498,6 @@ const generateAccessToken = async(req, res)=>{
             sameSite : "strict",
             secure: false,
             httpOnly: true, 
-            maxAge: 2 * 60 * 60 * 1000,
         }).status(200).json({
             message : `Access Token Generated Successfully`,
             success : true,
@@ -507,7 +511,6 @@ const generateAccessToken = async(req, res)=>{
                 success: false,
                 message: "Refresh token expired"
             });
-
         }
         
         res.status(500).json({ 
