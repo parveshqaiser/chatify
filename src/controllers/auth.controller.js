@@ -229,9 +229,6 @@ const userLogin = async(req, res)=>{
         user.refreshToken = refreshToken;
         user.status = "online";
 
-        // user.previousLogin = user.lastLogin; from todo backedn
-        // user.lastLogin = new Date().toLocaleDateString();
-
         user.previousLogin = user.lastLogin;
         user.lastLogin = generateDate()
 
@@ -489,22 +486,25 @@ const generateAccessToken = async(req, res)=>{
         };
 
         let newAccessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn : "5m"});
-        // let newRefreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"7d"});
+        let newRefreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"2d"});
 
         // user.refreshToken = newRefreshToken;
         // await user.save();
 
-        res.cookie("token", newAccessToken,{
+        let cookieOptions = {
             sameSite : "strict",
             secure: false,
             httpOnly: true, 
-        }).status(200).json({
+        }
+
+        res.cookie("token", newAccessToken,cookieOptions)
+        .cookie("refreshToken",newRefreshToken, cookieOptions) 
+        .status(200).json({
             message : `Access Token Generated Successfully`,
             success : true,
         });
 
     } catch (error) {
-
         if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") 
         {
             return res.status(401).json({
