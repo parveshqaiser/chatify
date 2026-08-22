@@ -223,8 +223,8 @@ const userLogin = async(req, res)=>{
             email : user.email
         };
 
-        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"5m"});
-        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"2d"});
+        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"3m"});
+        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"3m"});
 
         user.refreshToken = refreshToken;
         user.status = "online";
@@ -290,8 +290,10 @@ const userLogout = async(req, res)=>{
             httpOnly: true,
         };
 
-        res.status(200).clearCookie("token",options)
-        .clearCookie("refreshToken", options).json({
+        res.status(200)
+        .clearCookie("token",options)
+        .clearCookie("refreshToken", options)
+        .json({
             message : `Logout Success ${user.name}`,
             success : true
         });
@@ -452,6 +454,7 @@ const fetchAllUsers = async(req, res)=>{
 const generateAccessToken = async(req, res)=>{
     try {
         let incomingRefreshToken  = req.cookies?.refreshToken;
+        console.log("**** incomingRefreshToken ",incomingRefreshToken)
 
         if (!incomingRefreshToken) {
             return res.status(401).json({
@@ -486,7 +489,7 @@ const generateAccessToken = async(req, res)=>{
         };
 
         let newAccessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn : "5m"});
-        let newRefreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"2d"});
+        let newRefreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"2d"}); // not modifying this
 
         // user.refreshToken = newRefreshToken;
         // await user.save();
