@@ -307,6 +307,32 @@ const userLogout = async(req, res)=>{
     }
 }
 
+const emergencyLogout = async(req,res)=>{
+    try {
+        
+        let options = {
+            sameSite: "strict",
+            secure: false,
+            httpOnly: true,
+        };
+
+        res.status(200)
+            .clearCookie("token", options)
+            .clearCookie("refreshToken", options)
+            .json({
+                message: "Logged out successfully",
+                success: true
+            });
+
+    } catch (error) {
+        res.status(500).json({ 
+            message: "Server Error", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 const currentUser = async(req, res)=>{
     try {
         let {email} = req.user;
@@ -528,7 +554,8 @@ export {
     userRegistration, 
     verifyEmailToken, 
     userLogin, 
-    userLogout ,
+    userLogout,
+    emergencyLogout,
     currentUser, 
     updateProfile, 
     updatePassword,
