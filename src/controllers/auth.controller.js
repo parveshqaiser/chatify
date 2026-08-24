@@ -75,6 +75,8 @@ const userRegistration = async(req, res)=>{
 
         let verificationURL = `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unhashedToken}`;
 
+        console.log("EMAIL USER:", process.env.EMAIL_USER);
+
         try {
             let emailResult = await sendEmailToUser(email,name, verificationURL);
             console.log("----- waiting for message id ", emailResult.messageId);
@@ -223,8 +225,9 @@ const userLogin = async(req, res)=>{
             email : user.email
         };
 
-        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"3m"});
-        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"3m"});
+        // for mins : 15m , for hour :1h , for days : 1d
+        let accessToken = jwt.sign(payload,process.env.JWT_SECRET_KEY, {expiresIn:"1h"}); 
+        let refreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"1d"});
 
         user.refreshToken = refreshToken;
         user.status = "online";
@@ -514,7 +517,7 @@ const generateAccessToken = async(req, res)=>{
             email : user.email
         };
 
-        let newAccessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn : "5m"});
+        let newAccessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {expiresIn : "1h"});
         let newRefreshToken = jwt.sign(payload,process.env.JWT_REFRESH_SECRET_KEY, {expiresIn:"2d"}); // not modifying this
 
         // user.refreshToken = newRefreshToken;
