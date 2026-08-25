@@ -26,17 +26,29 @@ const initializeSocketConnection = (httpServer)=>{
             socket.join(room);
         });
 
-        socket.on("sendMessage",async({current,target,text, messageId,isEdit})=>{
-            // console.log(current,target,text, messageId,isEdit)
-            let room = [current,target].sort().join("_");
-            let chat;
+        socket.on("typing:start", ({ current, target }) => {
+            const room = [current, target].sort().join("_");
+            socket.to(room).emit("typing:start", {
+                userId: current
+            });
+        });
 
-            // console.log("*************** ", current,target,text, messageId,isEdit);
+        socket.on("typing:stop", ({ current, target }) => {
+            const room = [current, target].sort().join("_");
+            socket.to(room).emit("typing:stop", {
+                userId: current
+            });
+        });
+
+        socket.on("sendMessage",async({current,target,text, messageId,isEdit})=>{
+
+            let room = [current,target].sort().join("_");    
+            // console.log("****** ", current,target,text, messageId,isEdit);
 
             if(isEdit){
                 await editMessageService (current,target,messageId,text)
             }else{
-                chat = await saveMessage(current,target,text);
+                await saveMessage(current,target,text);
             }
 
             // io.to(room).emit("receiveMessage",{current,target,text})
@@ -44,6 +56,7 @@ const initializeSocketConnection = (httpServer)=>{
         });
 
         socket.on("disconnect",()=>{
+          
             for (const [userId, socketId] of onlineUsers.entries()) {
                 if (socketId === socket.id) {
                     onlineUsers.delete(userId);
