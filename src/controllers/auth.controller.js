@@ -233,7 +233,8 @@ const userLogin = async(req, res)=>{
         user.status = "online";
 
         user.previousLogin = user.lastLogin;
-        user.lastLogin = generateDate()
+        // user.lastLogin = generateDate()
+        user.lastLogin = new Date();
 
         await user.save();
 
