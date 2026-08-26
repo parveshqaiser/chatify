@@ -1,25 +1,67 @@
 
 import mongoose from "mongoose";
 
-
-// not using this schema
-
-const MessageSchema = new mongoose.Schema({
-    senderId : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "users",
-        required : true
+const MessageSchema = new mongoose.Schema(
+    {
+        chatId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "chats",
+            required: true,
+            index: true,
+        },
+        senderId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "users",
+            required: true,
+        },
+        receiverId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "users",
+            required: true,
+        },
+        type: {
+            type: String,
+            enum: ["text", "media", "document"],
+            required: true,
+        },
+        // Used for normal text messages
+        text: {
+            type: String,
+            trim: true,
+            minlength :1
+        },
+        file: {
+            url: {
+                type: String,
+                default: null,
+            },
+            publicId: {
+                type: String,
+                default: null,
+            },
+            fileName: {
+                type: String,
+                default: null,
+            },
+            mimeType: {
+                type: String,
+                default: null,
+            },
+            size: {
+                type: Number,
+                default: null,
+            },
+            duration: {
+                type: Number,
+                default: null,
+            },
+        },
     },
-    receiverId : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "users",
-        required : true
-    },
-    msg : {
-        type : String,
-    }    
-},{timestamps:true});
+    {timestamps: true}
+);
 
+MessageSchema.index({ chatId: 1, createdAt: -1 });
 
-const MessageModel = mongoose.connect("message", MessageSchema);
+let MessageModel = mongoose.model("messages", MessageSchema);
+
 export default MessageModel;
