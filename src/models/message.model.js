@@ -5,7 +5,7 @@ const MessageSchema = new mongoose.Schema(
     {
         chatId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "chats",
+            ref: "conversations",
             required: true,
             index: true,
         },
@@ -35,7 +35,7 @@ const MessageSchema = new mongoose.Schema(
                 type: String,
                 default: null,
             },
-            publicId: {
+            key: {
                 type: String,
                 default: null,
             },
