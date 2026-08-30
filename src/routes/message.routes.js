@@ -2,7 +2,7 @@
 
 import express from "express";
 import userAuthentication from "../middlewares/auth.middleware.js";
-import { getAllMessage, getUploadUrl, sendNewMessage } from "../controllers/conversation.controller.js";
+import { deleteMessage, getAllMessage, getUploadUrl, sendNewMessage } from "../controllers/conversation.controller.js";
 
 const router = express.Router();
 
@@ -10,5 +10,6 @@ router.post("/send/message/:targetUserId",userAuthentication, sendNewMessage); /
 router.post("/upload/file", getUploadUrl);
 
 router.get("/:targetUserId", userAuthentication, getAllMessage);
+router.delete("/:targetUserId/message/:messageId", userAuthentication, deleteMessage);
 
 export default router;
