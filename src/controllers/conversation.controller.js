@@ -1,6 +1,5 @@
 
 
-import mongoose from "mongoose";
 import UserModel from "../models/user.model.js";
 import ConversationModel from "../models/conversation.model.js";
 import { generateUploadUrl } from "../services/aws.service.js";
@@ -108,6 +107,42 @@ let sendNewMessage = async(req, res)=>{
 let getAllMessage = async (req, res)=>{
     try {
         
+        let loggedInUser = req.user.id; // sender id
+        let {targetUserId} = req.params;
+
+        let targetUserExist = await UserModel.findOne({_id: targetUserId,isEmailVerified:true});
+
+        if(!targetUserExist){
+            return res.status(404).json({
+                message : "Invalid User Id",
+                success : false
+            });
+        }
+
+        const conversation = await ConversationModel.findOne({
+            participants: {
+                $all: [loggedInUser, targetUserId]
+            }
+        });
+
+        if (!conversation) {
+            return res.status(200).json({
+                message : "No Conversation Started",
+                success : true
+            })
+        }
+
+        let message = await MessageModel.find({
+            chatId: conversation._id
+        }).populate("senderId", "name")
+        .populate("receiverId", "name");
+
+        res.status(200).json({
+            message : "All Messages Fetched",
+            success : true,
+            data : message
+        })
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -116,4 +151,4 @@ let getAllMessage = async (req, res)=>{
     }
 }
 
-export {getUploadUrl ,sendNewMessage};
+export {getUploadUrl ,sendNewMessage , getAllMessage};
