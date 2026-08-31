@@ -2,7 +2,7 @@
 
 import express from "express";
 import userAuthentication from "../middlewares/auth.middleware.js";
-import { deleteMessage, getAllMessage, getUploadUrl, sendNewMessage } from "../controllers/conversation.controller.js";
+import { clearAllConversation, deleteMessage, getAllMessage, getUploadUrl, sendNewMessage } from "../controllers/conversation.controller.js";
 
 const router = express.Router();
 
@@ -11,5 +11,6 @@ router.post("/upload/file", getUploadUrl);
 
 router.get("/:targetUserId", userAuthentication, getAllMessage);
 router.delete("/:targetUserId/message/:messageId", userAuthentication, deleteMessage);
+router.delete("/:targetUserId", userAuthentication , clearAllConversation);
 
 export default router;
