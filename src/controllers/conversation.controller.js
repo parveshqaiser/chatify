@@ -151,4 +151,166 @@ let getAllMessage = async (req, res)=>{
     }
 }
 
-export {getUploadUrl ,sendNewMessage , getAllMessage};
+let deleteMessage = async(req, res)=>{
+    try {
+        let loggedInUser = req.user.id; // sender id
+        let {targetUserId, messageId} = req.params;
+
+        if(loggedInUser == targetUserId.toString()){
+            return res.status(400).json({
+                message : "Logged In User & Target User id cannot be same",
+                success : false
+            })
+        }
+
+        let targetUserExist = await UserModel.findOne({
+            _id: targetUserId,
+            isEmailVerified:true
+        });
+
+        if(!targetUserExist){
+            return res.status(404).json({
+                message : "Invalid User Id",
+                success : false
+            });
+        }
+
+        let deletedMessage = await MessageModel.findOneAndDelete({
+            _id :messageId, 
+            senderId:loggedInUser,
+            receiverId: targetUserId
+        });
+
+       if (!deletedMessage) {
+            return res.status(404).json({                
+                message: "Message not found or you are not allowed to delete this message",
+                success: false,
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Message ${messageId} deleted successfully`,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Server Error",
+        });
+    }
+} 
+
+let clearAllConversation = async(req, res)=>{
+    try {
+        let loggedInUser = req.user.id; // sender id
+        let {targetUserId} = req.params;
+
+        if(loggedInUser == targetUserId.toString()){
+            return res.status(400).json({
+                message : "Logged In User & Target User id cannot be same",
+                success : false
+            })
+        }
+
+        let targetUserExist = await UserModel.findOne({
+            _id: targetUserId,
+            isEmailVerified:true
+        });
+
+        if(!targetUserExist){
+            return res.status(404).json({
+                message : "Invalid User Id",
+                success : false
+            });
+        }
+
+        // first delete from conversation
+        let conversation = await ConversationModel.findOneAndDelete({
+            participants : {
+                $all : [loggedInUser, targetUserId],
+                $size :2
+            }
+        });
+
+         if (!conversation) {
+            return res.status(404).json({
+                message: "Conversation not found",
+                success: false
+            });
+        }
+
+        // then delete all messages of that conversation
+        let delAlMessages = await MessageModel.deleteMany({
+            chatId: conversation._id
+        });
+
+        // console.log("delAlMessages ", delAlMessages);
+
+        res.status(200).json({
+            message : "Conversation Deleted Successfully",
+            success: true,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Server Error",
+        });
+    }
+}
+
+let editMessage = async(req, res)=>{
+    try {
+        let loggedInUser = req.user.id; // sender id
+        let {targetUserId,messageId} = req.params;
+
+        let {msg} = req.body;
+
+        if(loggedInUser == targetUserId.toString()){
+            return res.status(400).json({
+                message : "Logged In User & Target User id cannot be same",
+                success : false
+            })
+        }
+
+        let targetUserExist = await UserModel.findOne({
+            _id: targetUserId,
+            isEmailVerified:true
+        });
+
+        if(!targetUserExist){
+            return res.status(404).json({
+                message : "Invalid User Id",
+                success : false
+            });
+        }
+
+
+        let message = await MessageModel.findOne({_id: messageId, senderId:loggedInUser});
+
+        if(!message){
+            return res.status(404).json({
+                message : "Message does not exist",
+                success : false
+            });
+        }
+
+        message.text = msg;
+
+        await message.save();
+
+        res.status(200).json({
+            message : "Message Edited",
+            success : true
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message || "Server Error",
+            success: false,           
+        });
+    }
+}
+
+export {getUploadUrl ,sendNewMessage , getAllMessage ,deleteMessage,clearAllConversation};
