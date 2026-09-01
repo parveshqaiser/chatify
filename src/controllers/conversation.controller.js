@@ -287,11 +287,21 @@ let editMessage = async(req, res)=>{
         }
 
 
-        let message = await MessageModel.findOne({_id: messageId, senderId:loggedInUser});
+        let message = await MessageModel.findOne({
+            _id: messageId, 
+            // senderId: loggedInUser
+        });
 
         if(!message){
             return res.status(404).json({
                 message : "Message does not exist",
+                success : false
+            });
+        }
+
+        if(message.senderId.toString() !== loggedInUser){
+            return res.status(403).json({
+                message : "You can only Edit your own messages",
                 success : false
             });
         }
@@ -313,4 +323,11 @@ let editMessage = async(req, res)=>{
     }
 }
 
-export {getUploadUrl ,sendNewMessage , getAllMessage ,deleteMessage,clearAllConversation};
+export {
+    getUploadUrl ,
+    sendNewMessage , 
+    getAllMessage ,
+    deleteMessage,
+    clearAllConversation, 
+    editMessage
+};
