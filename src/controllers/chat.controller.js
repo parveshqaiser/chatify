@@ -302,9 +302,6 @@ const editMessage = async(req, res)=>{
         //     return val;
         // });
 
-        userMessage.msg = msg;
-        await chat.save();
-
         res.status(200).json({
             message : "Selected Message Updated Successfully",
             success : true
