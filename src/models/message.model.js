@@ -28,7 +28,7 @@ const MessageSchema = new mongoose.Schema(
         text: {
             type: String,
             trim: true,
-            minlength :1
+            // minlength :1
         },
         file: {
             url: {
