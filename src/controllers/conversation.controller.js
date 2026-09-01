@@ -16,25 +16,19 @@ const getUploadUrl = async (req, res) => {
             });
         }
 
-        const { uploadUrl, key } = await generateUploadUrl(
-            fileName,
-            fileType
-        );
+        const { uploadUrl, key , publicUrl} = await generateUploadUrl(fileName,fileType);
 
-        console.log("uploadUrl ", uploadUrl);
-        console.log("key ******** ", key);
+        let data = {uploadUrl,key,publicUrl};
 
         res.status(200).json({
             success : true,
-            uploadUrl,
-            key,
+            data : data,          
         });
-
 
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: error.message || "Failed to generate upload URL",
+            message: error.message || "Could not generate upload URL",
         });
     }
 };

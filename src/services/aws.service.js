@@ -12,17 +12,22 @@ const r2 = new S3Client({
 
 export const generateUploadUrl = async (fileName, contentType) => {
 
-    const key = `files/${Date.now()}-${fileName}`;
+    let key = `files/${Date.now()}-${fileName}`;
 
-    const command = new PutObjectCommand({
+    let command = new PutObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
         Key: key,
         ContentType: contentType,
     });
 
-    const uploadUrl = await getSignedUrl(r2, command, {
+    let uploadUrl = await getSignedUrl(r2, command, {
         expiresIn: 60 * 10,
     });
 
-    return {uploadUrl,key};
+    let publicUrl = `${process.env.R2_PUBLIC_DOMAIN}/files/${key}`;
+
+    // https://pub-b7983adc23f54a9a8a147fcfe82e2e16.r2.dev/files/1788019950614-Cover%20Letter.pdf
+
+
+    return {uploadUrl,key, publicUrl};
 };
