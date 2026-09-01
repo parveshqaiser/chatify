@@ -38,8 +38,15 @@ let sendNewMessage = async(req, res)=>{
         let loggedInUser = req.user.id; // sender id
         let {targetUserId} = req.params;
 
-        let {msg} = req.body;
+       const { msg, type, file, isEdit, messageId } = req.body;
 
+        if(loggedInUser == targetUserId.toString()){
+            return res.status(400).json({
+                message : "Logged In User & Target User id cannot be same",
+                success : false
+            })
+        }
+       
         if (!msg || msg.trim().length === 0) {
             return res.status(400).json({
                 message: "Message cannot be empty",
@@ -54,13 +61,6 @@ let sendNewMessage = async(req, res)=>{
                 message : "Target User does not exist",
                 status : false
             });
-        }
-
-        if(loggedInUser == targetUserId.toString()){
-            return res.status(400).json({
-                message : "Logged In User & Target User id cannot be same",
-                success : false
-            })
         }
 
         let chat = await ConversationModel.findOne({
