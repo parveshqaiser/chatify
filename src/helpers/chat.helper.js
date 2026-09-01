@@ -2,7 +2,9 @@
 import ChatModel from "../models/chat.model.js";
 import UserModel from "../models/user.model.js";
 
-// using this service when adding new message
+//  this file is acting as a mediator between api & socket. in case i need to test from backend i can test using restapi
+
+
 export let saveMessage = async(loggedInUser,targetUserId, msg)=>{
 
     let user = await UserModel.findOne({_id:targetUserId, isEmailVerified:true}); // only verified user must come

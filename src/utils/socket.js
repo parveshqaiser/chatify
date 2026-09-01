@@ -1,6 +1,6 @@
 
 import { Server } from "socket.io";
-import { editMessageService, saveMessage } from "../services/chat.service.js";
+import { editMessageService, saveMessage } from "../helpers/chat.helper.js";
 
 let onlineUsers = new Map();
 

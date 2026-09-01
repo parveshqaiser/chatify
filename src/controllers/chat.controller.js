@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 import ChatModel from "../models/chat.model.js";
 import UserModel from "../models/user.model.js";
-import { editMessageService, saveMessage } from "../services/chat.service.js";
+import { editMessageService, saveMessage } from "../helpers/chat.helper.js";
 
 
 const sendMessage = async(req, res)=>{
