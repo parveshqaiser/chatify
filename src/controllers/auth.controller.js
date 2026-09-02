@@ -39,13 +39,20 @@ const userRegistration = async(req, res)=>{
             });
         }
 
-
-        let user = await UserModel.findOne({$or : [{username,email}]});
+        // let user = await UserModel.findOne({$or : [{username,email}]});
+        let user = await UserModel.findOne({email});
 
         // checking if user exist already verified
         if(user && user.isEmailVerified){
             return res.status(409).json({
                 message : `User with the email ${user.email} or username ${user.username} already exist. Please Login!`,
+                success : false
+            })
+        }
+
+        if(user && !user.isEmailVerified && user.username == username){
+            return res.status(409).json({
+                message : "Username already taken. Try another",
                 success : false
             })
         }
@@ -84,7 +91,6 @@ const userRegistration = async(req, res)=>{
             console.log("some error in email ", emailError);
         }
        
-
         res.status(201).json({
             message : "User Verification Email sent Successfully. Please check your email",
             success : true
