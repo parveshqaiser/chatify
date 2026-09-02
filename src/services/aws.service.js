@@ -25,9 +25,6 @@ export const generateUploadUrl = async (fileName, contentType) => {
     });
 
     let publicUrl = `${process.env.R2_PUBLIC_DOMAIN}/${key}`;
-
-    // https://pub-b7983adc23f54a9a8a147fcfe82e2e16.r2.dev/files/1788019950614-Cover%20Letter.pdf
-
-
+    
     return {uploadUrl,key, publicUrl};
 };
