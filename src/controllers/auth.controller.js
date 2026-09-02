@@ -42,7 +42,7 @@ const userRegistration = async(req, res)=>{
         // let user = await UserModel.findOne({$or : [{username,email}]});
         let user = await UserModel.findOne({email});
 
-        // checking if user exist already verified
+        // checking if exsiting user is verified
         if(user && user.isEmailVerified){
             return res.status(409).json({
                 message : `User with the email ${user.email} or username ${user.username} already exist. Please Login!`,
@@ -51,7 +51,7 @@ const userRegistration = async(req, res)=>{
         }
 
         if(user && !user.isEmailVerified && user.username == username){
-            return res.status(409).json({
+            return res.status(400).json({
                 message : "Username already taken. Try another",
                 success : false
             })
