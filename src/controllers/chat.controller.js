@@ -5,6 +5,7 @@ import UserModel from "../models/user.model.js";
 import { editMessageService, saveMessage } from "../helpers/chat.helper.js";
 
 
+// this controller is used for chat v1
 const sendMessage = async(req, res)=>{
 
     try {

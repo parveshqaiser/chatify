@@ -5,6 +5,8 @@ import ConversationModel from "../models/conversation.model.js";
 import { generateUploadUrl } from "../services/aws.service.js";
 import MessageModel from "../models/message.model.js";
 
+// this controller is used for chat v2
+
 const getUploadUrl = async (req, res) => {
     try {
         const { fileName, fileType } = req.body;
