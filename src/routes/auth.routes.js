@@ -16,7 +16,7 @@ router.get("/allusers", userAuthentication, fetchAllUsers);
 router.patch("/update-profile", userAuthentication, updateProfile);
 
 router.post("/change-password", userAuthentication,updatePassword);
-router.get("/generate/access-token", generateAccessToken);
+router.get("/refresh-token", generateAccessToken);
 
 export default router;
 
