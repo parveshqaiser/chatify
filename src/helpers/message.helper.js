@@ -3,7 +3,7 @@ import ConversationModel from "../models/conversation.model.js";
 import MessageModel from "../models/message.model.js";
 import UserModel from "../models/user.model.js";
 
-export const handleAddorEditMessage = async ({
+export const handleAddMessage = async ({
     senderId,receiverId,text,type,file
 }) => {
     
@@ -64,3 +64,40 @@ export const handleAddorEditMessage = async ({
         chatId: chat._id 
     };
 };
+
+
+export const handleEditMesage = async({senderId,receiverId,text,messageId})=>{
+
+    if (!senderId || !receiverId) {
+        throw new Error("Sender and Receiver IDs are required");
+    }
+
+    if (senderId.toString() === receiverId.toString()) {
+        throw new Error("Logged in user & Target user cannot be the same");
+    }
+
+    let user = await UserModel.findOne({
+        _id: receiverId,
+        isEmailVerified: true,
+    });
+
+    if (!user) {
+        throw new Error("Target user does not exist or is not verified");
+    }
+
+    let message = await MessageModel.findOne({
+        _id: messageId, 
+        // senderId: loggedInUser
+    });
+    
+    if(!message){
+        throw new Error("Message does not exist");
+    }
+
+    message.text = text;
+    await message.save();
+
+    return {
+        message : "Message Updated"
+    }
+}
