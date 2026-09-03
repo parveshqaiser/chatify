@@ -1,7 +1,6 @@
 
 import { Server } from "socket.io";
-import { editMessageService, saveMessage } from "../helpers/chat.helper.js";
-import { handleAddorEditMessage } from "../helpers/message.helper.js";
+import { handleAddMessage, handleEditMesage } from "../helpers/message.helper.js";
 
 let onlineUsers = new Map();
 
@@ -44,25 +43,37 @@ const initializeSocketConnection = (httpServer)=>{
         socket.on("sendMessage",async(data, callback)=>{
 
             try {
+
+                let {current, target, text, type , file, messageId, isEdit} = data;
                 // console.log("data in socket ************ ", data);
-
-                let {current, target, text, type , file} = data;
                 let room = [current,target].sort().join("_"); 
+                // console.log(room, "rommmm");
 
-                const result = await handleAddorEditMessage({
-                    senderId: current,
-                    receiverId: target,
-                    text: text,
-                    type: type,
-                    file: file,
-                });
+                let result;
 
-                io.to(room).emit("receiveMessage", result.message) // in front end, called refetching method
+                if(isEdit){
+                    result=  handleEditMesage({
+                        senderId: current,
+                        receiverId: target,
+                        text,
+                        messageId
+                    })
+                }else{
+                    result = await handleAddMessage({
+                        senderId: current,
+                        receiverId: target,
+                        text: text,
+                        type: type,
+                        file: file,
+                    });
+                }
+               
+                io.to(room).emit("receiveMessage") // in front end, called refetching method
                 if (typeof callback === "function") {
                     callback({ success: true, message: result.message });
                 }
             } catch (error) {
-                console.error("Socket error:", error.message);
+                console.error("Socket error:", error);
                 if (typeof callback === "function") {
                     callback({ success: false, error: error.message });
                 }

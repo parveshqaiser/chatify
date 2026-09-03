@@ -183,8 +183,8 @@ let deleteMessage = async(req, res)=>{
         }
 
         res.status(200).json({
-            success: true,
-            message: `Message ${messageId} deleted successfully`,
+            message: "Message deleted successfully",
+            success: true,            
         });
 
     } catch (error) {
