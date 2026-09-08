@@ -51,6 +51,7 @@ let UserSchema = new mongoose.Schema({
     avatar : {
         type : String,
         default : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT0M9PkaDKnCMW8NANGmmvjkS-WhhsIOe4pQ&s",
+        // https://i.pravatar.cc/300
     },
     refreshToken : {
         type: String
