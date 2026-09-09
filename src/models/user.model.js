@@ -48,10 +48,19 @@ let UserSchema = new mongoose.Schema({
     lastseen : {
         type : Date
     },
-    avatar : {
-        type : String,
-        default : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT0M9PkaDKnCMW8NANGmmvjkS-WhhsIOe4pQ&s",
-        // https://i.pravatar.cc/300
+    avatar: {
+        url: {
+            type: String,
+            default: null
+        },
+        publicId: {
+            type: String,
+            default: null
+        },
+        createdAt: {
+            type: Date,
+            default: null
+        }
     },
     refreshToken : {
         type: String
@@ -102,3 +111,4 @@ UserSchema.methods.isPasswordCorrect = async function(enteredPassowrd){
 let UserModel = mongoose.model("users", UserSchema);
 export default UserModel;
 
+// https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT0M9PkaDKnCMW8NANGmmvjkS-WhhsIOe4pQ&s

@@ -1,4 +1,5 @@
 
+import { Readable } from "node:stream";
 import UserModel from "../models/user.model.js";
 import { sendEmailToUser } from "../services/nodemailer.service.js";
 import { checkInputValidation } from "../utils/validation.js";
@@ -8,6 +9,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import LoginAttemptModel from "../models/login.model.js";
 import { allowedDomains, generateDate } from "../utils/constants.js";
+import cloudinary from "../services/cloudinary.service.js";
 
 const userRegistration = async(req, res)=>{
 
@@ -560,6 +562,80 @@ const generateAccessToken = async(req, res)=>{
     }
 }
 
+const changeAvatar = async(req, res)=>{
+    let uploadedPublicId= null;
+
+    try {
+
+        if (!req.file || !req.file.buffer) {
+            return res.status(400).json({
+                message: "Please upload an image file",
+                success: false
+            });
+        }
+
+        let {email} = req.user;
+
+        let user = await UserModel.findOne({email}).select("-password");
+
+        if(!user){
+            return res.status(404).json({
+                message: "User does not exist",
+                success: false,               
+            })
+        }
+
+        let oldPublicId = user.avatar?.publicId;
+
+        let result = await new Promise((resolve, reject) => {
+            let uploadStream = cloudinary.uploader.upload_stream(
+                { folder: "avatars" },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+
+            Readable.from(req.file.buffer).pipe(uploadStream);
+        });
+
+        uploadedPublicId = result?.public_id;
+
+        user.avatar = {
+            publicId: result.public_id,
+            url: result.secure_url,
+            createdAt: result.created_at || new Date()
+        };
+
+        await user.save();
+
+        if (oldPublicId) {
+            cloudinary.uploader.destroy(oldPublicId).catch((err) => {
+                console.error("Failed to delete old avatar from Cloudinary:", err.message);
+            });
+        }
+
+        res.status(200).json({
+            message : "Avatar Changed Succeesfully",
+            success : true
+        });
+
+    } catch (error) {
+
+        if (uploadedPublicId) {
+            cloudinary.uploader.destroy(uploadedPublicId).catch((err) => {
+                console.error("Rollback failed to delete new image:", err.message);
+            });
+        }
+
+        return res.status(500).json({ 
+            message: "Failed to update avatar", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 export {
     userRegistration, 
     verifyEmailToken, 
@@ -570,5 +646,6 @@ export {
     updateProfile, 
     updatePassword,
     fetchAllUsers,
-    generateAccessToken
+    generateAccessToken,
+    changeAvatar
 };
