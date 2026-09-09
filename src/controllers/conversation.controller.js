@@ -7,7 +7,7 @@ import MessageModel from "../models/message.model.js";
 
 // this controller is used for chat v2
 
-const getUploadUrl = async (req, res) => {
+const getCloudfareR2url = async (req, res) => {
     try {
         const { fileName, fileType } = req.body;
 
@@ -320,7 +320,7 @@ let editMessage = async(req, res)=>{
 }
 
 export {
-    getUploadUrl ,
+    getCloudfareR2url ,
     sendNewMessage , 
     getAllMessage ,
     deleteMessage,
