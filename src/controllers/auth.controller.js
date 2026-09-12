@@ -636,6 +636,37 @@ const changeAvatar = async(req, res)=>{
     }
 }
 
+const addSocialMedia = async(req, res)=>{
+    try {
+        let {email} = req.user;
+        let {socials} = req.body;
+
+        let user = await UserModel.findOne({email}).select("-password"); 
+
+        if(!user){
+            return res.status(404).json({
+                message: "User does not exist",
+                success: false,               
+            })
+        }
+
+        user.socials.push(...socials);
+        await user.save();        
+
+        res.status(200).json({
+            message : "Socials Added Successfully",
+            success : true
+        })
+
+    } catch (error) {
+        return res.status(500).json({ 
+            message: "Failed to Add Social Links", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 export {
     userRegistration, 
     verifyEmailToken, 
@@ -647,5 +678,6 @@ export {
     updatePassword,
     fetchAllUsers,
     generateAccessToken,
-    changeAvatar
+    changeAvatar,
+    addSocialMedia
 };
