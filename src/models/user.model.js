@@ -62,6 +62,16 @@ let UserSchema = new mongoose.Schema({
             default: null
         }
     },
+    socials : [{
+        platform  : {
+            type : String,
+            default : null
+        },
+        url : {
+            type : String,
+            default : null
+        }
+    }],
     refreshToken : {
         type: String
     },
