@@ -1,6 +1,7 @@
 import express from "express";
 import { 
-    addSocialMedia, changeAvatar, currentUser, emergencyLogout, 
+    addSocialHandles,
+    changeAvatar, currentUser, emergencyLogout, 
     fetchAllUsers, generateAccessToken, updatePassword, updateProfile, 
     userLogin, userLogout, userRegistration, verifyEmailToken 
 } from "../controllers/auth.controller.js";
@@ -21,7 +22,7 @@ router.post("/change-avatar", userAuthentication, uploadFile.single("avatar"),ch
 router.get("/current-user", userAuthentication, currentUser);
 router.get("/allusers", userAuthentication, fetchAllUsers);
 router.patch("/update-profile", userAuthentication, updateProfile);
-router.post("/add-socials", userAuthentication, addSocialMedia);
+router.post("/add-social-link", userAuthentication, addSocialHandles);
 
 router.post("/change-password", userAuthentication,updatePassword);
 router.get("/refresh-token", generateAccessToken);
