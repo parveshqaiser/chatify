@@ -636,10 +636,10 @@ const changeAvatar = async(req, res)=>{
     }
 }
 
-const addSocialMedia = async(req, res)=>{
+const addSocialHandles = async(req, res)=>{
     try {
         let {email} = req.user;
-        let {socials} = req.body;
+        let incomingSocials = req.body;  // here it comes in req.body , does not require key
 
         let user = await UserModel.findOne({email}).select("-password"); 
 
@@ -650,11 +650,31 @@ const addSocialMedia = async(req, res)=>{
             })
         }
 
-        user.socials.push(...socials);
+        let isEmpty =  incomingSocials?.some(item => item.platform == "" || item.url == "");
+        
+        if(isEmpty) {
+            return res.status(400).json({
+                message : "Field Cannot be empty",  
+                success : false
+            })
+        }
+
+        // user.socials.push(...incomingSocials);
+
+        incomingSocials.forEach(item =>{
+            let platformExist =  user.socials.find(val => val.platform == item.platform);
+
+            if(platformExist){
+                platformExist.url = item.url;
+            }else {
+                user.socials.push(item);
+            }
+        });
+
         await user.save();        
 
         res.status(200).json({
-            message : "Socials Added Successfully",
+            message : "Social Links Added Successfully",
             success : true
         })
 
@@ -679,5 +699,5 @@ export {
     fetchAllUsers,
     generateAccessToken,
     changeAvatar,
-    addSocialMedia
+    addSocialHandles
 };
