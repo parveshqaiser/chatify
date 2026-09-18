@@ -687,6 +687,8 @@ const addSocialHandles = async(req, res)=>{
     }
 }
 
+// remove media handle
+
 export {
     userRegistration, 
     verifyEmailToken, 
