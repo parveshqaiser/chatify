@@ -2,7 +2,7 @@ import express from "express";
 import { 
     addSocialHandles,
     changeAvatar, currentUser, emergencyLogout, 
-    fetchAllUsers, generateAccessToken, updatePassword, updateProfile, 
+    fetchAllUsers, generateAccessToken, removeSocialHandles, updatePassword, updateProfile, 
     userLogin, userLogout, userRegistration, verifyEmailToken 
 } from "../controllers/auth.controller.js";
 import userAuthentication from "../middlewares/auth.middleware.js";
@@ -23,6 +23,7 @@ router.get("/current-user", userAuthentication, currentUser);
 router.get("/allusers", userAuthentication, fetchAllUsers);
 router.patch("/update-profile", userAuthentication, updateProfile);
 router.post("/add-social-link", userAuthentication, addSocialHandles);
+router.patch("/remove-social-link/:platform", userAuthentication, removeSocialHandles);
 
 router.post("/change-password", userAuthentication,updatePassword);
 router.get("/refresh-token", generateAccessToken);
