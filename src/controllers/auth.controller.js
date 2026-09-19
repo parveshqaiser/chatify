@@ -689,6 +689,45 @@ const addSocialHandles = async(req, res)=>{
 
 // remove media handle
 
+const removeSocialHandles = async(req, res)=>{
+    try {
+        let {email} = req.user;
+        let {platform} = req.params;
+
+        let user = await UserModel.findOne({email}).select("-password"); 
+
+        if(!user){
+            return res.status(404).json({
+                message: "User does not exist",
+                success: false,               
+            })
+        }
+
+        if(!platform){
+            return res.status(400).json({
+                message : "Invalid Params",
+                success : false
+            })
+        }
+
+        user.socials = user.socials.filter(item => item.platform !==  platform);
+
+        await user.save();
+
+        res.status(200).json({
+            message : "Handle Removed Successfully",
+            success : true
+        });
+
+    } catch (error) {
+        return res.status(500).json({ 
+            message: "Failed to Delete Social Links", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 export {
     userRegistration, 
     verifyEmailToken, 
@@ -701,5 +740,6 @@ export {
     fetchAllUsers,
     generateAccessToken,
     changeAvatar,
-    addSocialHandles
+    addSocialHandles,
+    removeSocialHandles
 };
