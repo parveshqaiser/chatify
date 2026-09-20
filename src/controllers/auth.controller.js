@@ -8,7 +8,7 @@ import { generateEmailVerificationToken } from "../utils/generateToken.js";
 import crypto from "node:crypto";
 import path from "node:path";
 import LoginAttemptModel from "../models/login.model.js";
-import { allowedDomains, generateDate } from "../utils/constants.js";
+import { allowedDomains, generateDate, socialPlatforms } from "../utils/constants.js";
 import cloudinary from "../services/cloudinary.service.js";
 
 const userRegistration = async(req, res)=>{
@@ -692,7 +692,7 @@ const addSocialHandles = async(req, res)=>{
 const removeSocialHandles = async(req, res)=>{
     try {
         let {email} = req.user;
-        let {platform} = req.params;
+        let {platform} = req.params;  // incoming params
 
         let user = await UserModel.findOne({email}).select("-password"); 
 
@@ -706,6 +706,13 @@ const removeSocialHandles = async(req, res)=>{
         if(!platform){
             return res.status(400).json({
                 message : "Invalid Params",
+                success : false
+            })
+        }
+
+        if(!socialPlatforms.includes(platform)){
+            return res.status(404).json({
+                message : "Invalid Social Handle",
                 success : false
             })
         }
