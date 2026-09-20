@@ -12,3 +12,5 @@ export let generateDate =()=>{
         timeZone: "Asia/Kolkata"
     });
 }
+
+export let socialPlatforms = ["linkedin","twitter","facebook","instagram","github"];
