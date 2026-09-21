@@ -84,7 +84,7 @@ const userRegistration = async(req, res)=>{
 
         let verificationURL = `${req.protocol}://${req.get("host")}/api/v1/auth/verify-email/${unhashedToken}`;
 
-        console.log("EMAIL USER:", process.env.EMAIL_USER);
+        // console.log("EMAIL USER:", process.env.EMAIL_USER);
 
         try {
             let emailResult = await sendEmailToUser(email,name, verificationURL);
