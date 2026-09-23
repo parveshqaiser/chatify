@@ -167,6 +167,8 @@ const userLogin = async(req, res)=>{
     try {
         let {email, password} = req.body;
 
+        console.time("login");
+
         let loginAttempt = await LoginAttemptModel.findOne({email});
 
         if (loginAttempt && loginAttempt.lockedUntil && loginAttempt.lockedUntil > Date.now()) 
@@ -269,6 +271,8 @@ const userLogin = async(req, res)=>{
             token : accessToken,
             data : data
         });
+
+        console.timeEnd("login");
 
     } catch (error) {
         return res.status(500).json({ 
