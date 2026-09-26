@@ -10,6 +10,7 @@ import initializeSocketConnection from "./utils/socket.js";
 import authRoutes from "./routes/auth.routes.js"; 
 import chatRoutes from "./routes/chat.routes.js"; 
 import messageRoutes from "./routes/message.routes.js";
+import groupRoutes from "./routes/group.routes.js";
 
 let app = express();
 app.use(express.json());
@@ -37,6 +38,7 @@ app.get("/", (req, res)=>{
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/chat", chatRoutes);
+app.use("/api/v1/group", groupRoutes);
 
 app.use("/api/v2/chat", messageRoutes);
 
