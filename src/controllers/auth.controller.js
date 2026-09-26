@@ -540,7 +540,7 @@ const generateAccessToken = async(req, res)=>{
             sameSite : "strict",
             secure: false,
             httpOnly: true, 
-        }
+        };
 
         res.cookie("token", newAccessToken,cookieOptions)
         .cookie("refreshToken",newRefreshToken, cookieOptions) 
@@ -690,8 +690,6 @@ const addSocialHandles = async(req, res)=>{
         });
     }
 }
-
-// remove media handle
 
 const removeSocialHandles = async(req, res)=>{
     try {
