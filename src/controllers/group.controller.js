@@ -83,6 +83,18 @@ const createGroup = async(req, res)=>{
     }
 }
 
+const addMembers = async (req, res)=> {
+    try {
+        
+    } catch (error) {
+         return res.status(500).json({ 
+            message: "Some Issue in Adding Member Group", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 export {
     createGroup
 }
