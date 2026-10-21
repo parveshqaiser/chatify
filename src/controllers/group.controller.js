@@ -95,6 +95,9 @@ const addMembers = async (req, res)=> {
     }
 }
 
+// remove members by admin
+
 export {
-    createGroup
+    createGroup,
+    addMembers
 }
