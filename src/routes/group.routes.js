@@ -1,12 +1,17 @@
 
 import express from "express";
 import userAuthentication from "../middlewares/auth.middleware.js";
-import { createGroup, fetchGroupDetails } from "../controllers/group.controller.js";
+import { addMembers, createGroup, fetchGroupDetails } from "../controllers/group.controller.js";
 import uploadFile from "../middlewares/multer.middleware.js";
+import isGroupAdmin from "../middlewares/group-admin.middleware.js";
 
 let router = express.Router();
 
 router.post("/", userAuthentication,uploadFile.single("image"), createGroup);
 router.get("/", userAuthentication, fetchGroupDetails);
+router.post("/:groupId/add-members", userAuthentication, isGroupAdmin, addMembers);
+// router.delete("/:groupId/remove-members/:userId", userAuthentication, isGroupAdmin);
+// router.patch("/:groupId/edit", userAuthentication, isGroupAdmin);
+// router.delete("/:groupId/", userAuthentication, isGroupAdmin);
 
 export default router;

@@ -1,8 +1,9 @@
+
 import mongoose from "mongoose";
 import GroupModel from "../models/group-chat.model.js";
 import cloudinary from "../services/cloudinary.service.js";
 import { Readable } from "node:stream";
-import path from "node:path";
+import UserModel from "../models/user.model.js";
 
 // backend validation in this controller is pending
 const createGroup = async(req, res)=>{
@@ -100,7 +101,8 @@ const fetchGroupDetails = async(req, res)=>{
             message : "Group Details Fetched",
             success : true,
             data : groups
-        })
+        });
+
     } catch (error) {
         return res.status(500).json({ 
             message: "Some Issue in fetching group details", 
@@ -112,8 +114,49 @@ const fetchGroupDetails = async(req, res)=>{
 
 const addMembers = async (req, res)=> {
     try {
-        let loggedInUser = req.user.id; // logged in user
+       
+        let group = req.group;
+        let { userId } = req.body;
 
+         if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid user ID"
+            });
+        }
+
+        let user = await UserModel.findById(userId).select("username");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false,               
+            });
+        }
+
+        let alreadyMember = group.members.some(
+            member => member.userId.toString() === userId
+        );
+
+        if (alreadyMember) {
+            return res.status(409).json({
+                message: "User is already a group member",
+                 success: false,
+            });
+        }
+
+        group.members.push({
+            userId: user._id,
+            username: user.username
+        });
+
+        await group.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Member added successfully",
+            data: group
+        });
 
     } catch (error) {
          return res.status(500).json({ 
@@ -127,6 +170,8 @@ const addMembers = async (req, res)=> {
 // remove members by admin only
 
 // delete group
+
+// edit group
 
 
 
