@@ -83,9 +83,38 @@ const createGroup = async(req, res)=>{
     }
 }
 
+// fetch all group (only those where user is present )
+
+const fetchGroupDetails = async(req, res)=>{
+    try {
+        let loggedInUser = req.user.id; // logged in user
+
+        let groups = await GroupModel.find({
+            $or : [
+                {createdBy : loggedInUser}, 
+                {"members.userId" : loggedInUser}
+            ]
+        });
+
+        res.status(200).json({
+            message : "Group Details Fetched",
+            success : true,
+            data : groups
+        })
+    } catch (error) {
+        return res.status(500).json({ 
+            message: "Some Issue in fetching group details", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 const addMembers = async (req, res)=> {
     try {
-        
+        let loggedInUser = req.user.id; // logged in user
+
+
     } catch (error) {
          return res.status(500).json({ 
             message: "Some Issue in Adding Member Group", 
@@ -95,9 +124,14 @@ const addMembers = async (req, res)=> {
     }
 }
 
-// remove members by admin
+// remove members by admin only
+
+// delete group
+
+
 
 export {
     createGroup,
-    addMembers
+    addMembers,
+    fetchGroupDetails
 }
