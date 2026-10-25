@@ -85,7 +85,6 @@ const createGroup = async(req, res)=>{
 }
 
 // fetch all group (only those where user is present )
-
 const fetchGroupDetails = async(req, res)=>{
     try {
         let loggedInUser = req.user.id; // logged in user
@@ -119,7 +118,7 @@ const addMembers = async (req, res)=> {
         let group = req.group;
         let { userId } = req.body;
 
-         if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid user ID"
@@ -160,7 +159,7 @@ const addMembers = async (req, res)=> {
         });
 
     } catch (error) {
-         return res.status(500).json({ 
+        return res.status(500).json({ 
             message: "Some Issue in Adding Member Group", 
             error: error.message, 
             success: false 
@@ -169,8 +168,96 @@ const addMembers = async (req, res)=> {
 }
 
 // remove members by admin only
+const removeMembers = async(req, res)=>{
+    try {
+        let group = req.group;
+        let { userId } = req.body;
+
+         if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid user ID"
+            });
+        }
+
+        let user = await UserModel.findById(userId).select("username");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false,               
+            });
+        }
+
+        let isMember = group.members.some(
+            member => member.userId.toString() === userId
+        );
+
+        if (!isMember) {
+            return res.status(404).json({
+                message: "User Not a member in this Group",
+                success: false,
+            });
+        }
+
+        let isAdmin = group.admins.some(
+            id => id.toString() === userId
+        );
+
+        if (isAdmin && group.admins.length === 1) {
+            return res.status(400).json({
+                success: false,
+                message: "Cannot remove the last group admin"
+            });
+        }
+
+        group.members.pull({
+            userId: new mongoose.Types.ObjectId(userId)
+        });
+
+        // Also remove admin privileges if applicable.
+        group.admins.pull(userId);
+
+        await group.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Member removed successfully",
+            data: group
+        });
+
+    } catch (error) {
+        return res.status(500).json({ 
+            message: "Some Issue in Removing Group Member", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
 
 // delete group
+
+const deleteGroup = async(req, res)=>{
+    try {
+        let groupId = req.group._id;
+
+        await GroupModel.findOneAndDelete(groupId);
+
+        // once conversation for that group starts, i need to delete all the conversation of that collection 
+        res.status(200).json({
+            message : "Group Deleted",
+            success : true
+        });
+
+    } catch (error) {
+        return res.status(500).json({ 
+            message: "Some Issue in Deleting Group", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
+
 
 // edit group
 
@@ -179,5 +266,7 @@ const addMembers = async (req, res)=> {
 export {
     createGroup,
     addMembers,
+    removeMembers,
+    deleteGroup,
     fetchGroupDetails
 }
