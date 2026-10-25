@@ -112,6 +112,7 @@ const fetchGroupDetails = async(req, res)=>{
     }
 }
 
+// as of now adding as single/ individual member  & not multiple
 const addMembers = async (req, res)=> {
     try {
        
