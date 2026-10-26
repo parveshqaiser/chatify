@@ -57,7 +57,7 @@ dbConnection().then(()=>{
         console.log(`Server is up at http://localhost:${PORT}`);
     });
 }).catch(err =>{
-    console.log("Some Error in connecting DB");
+    console.log("Some Error in connecting DB",err);
     process.exit(1);  //if there is error , de establish the connection or exit the connection
 })
 

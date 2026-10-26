@@ -94,7 +94,7 @@ const fetchGroupDetails = async(req, res)=>{
                 {createdBy : loggedInUser}, 
                 {"members.userId" : loggedInUser}
             ]
-        });
+        }).populate({path:"members.userId"}).select("avatar");
 
         res.status(200).json({
             message : "Group Details Fetched",
@@ -236,7 +236,6 @@ const removeMembers = async(req, res)=>{
 }
 
 // delete group
-
 const deleteGroup = async(req, res)=>{
     try {
         let groupId = req.group._id;
@@ -258,15 +257,43 @@ const deleteGroup = async(req, res)=>{
     }
 }
 
-
 // edit group
+const editGroup = async(req, res)=>{
+    try {
+        let {groupName, description} = req.body;
+        let group = req.group;
 
+        if (!groupName?.trim()) {
+            return res.status(400).json({
+                message: "Group name is required",
+                success: false,
+            });
+        }
 
+        group.groupName = groupName;
+        group.description = description || "";
+
+        await group.save();
+
+        res.status(200).json({
+            message : "Group Updated",
+            success : true
+        });
+
+    } catch (error) {
+        return res.status(500).json({ 
+            message: "Some Issue in Deleting Group", 
+            error: error.message, 
+            success: false 
+        });
+    }
+}
 
 export {
     createGroup,
     addMembers,
     removeMembers,
     deleteGroup,
-    fetchGroupDetails
+    fetchGroupDetails,
+    editGroup
 }
