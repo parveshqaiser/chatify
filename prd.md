@@ -58,11 +58,14 @@
 - `DELETE /chat` - Delete User Message (secured)
 - `DELETE /chat` - Delete entire conversation between two users (secured)
 
-**Message Group** (`/api/v1/chat/group`)
+**Message Group** (`/api/v1/group`)
 
-- `POST` - Add members in the group (secured)
-- `PATCH` - Remove members in the group (secured)
+- `POST` - Crete Group
 - `GET` - Fetch Group by users (secured)
+- `POST` - Add members in the group (secured) only admin
+- `DELETE` - Remove members from the group (secured) only admin
+- `PATCH`   Edit group (like name, description) 
+
 - `DELETE` - Delete Group ( remove all conversation of all the users in the group )(secured)
 
 - `POST` - Send Message 3 or more person (secured)
