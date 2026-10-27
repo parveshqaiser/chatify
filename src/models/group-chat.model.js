@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 let GroupSchema = new mongoose.Schema({
-    avatar: {
+    groupAvatar: {
         url: {
             type: String,
             default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyMhkU6ImpYVLj4XSVXbVg3z-A3a1hmdeZ4IF3ja-gwQ&s=10"

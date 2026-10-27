@@ -51,7 +51,7 @@ let UserSchema = new mongoose.Schema({
     avatar: {
         url: {
             type: String,
-            default: null
+            default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnYgfJa61budX2j2sgEwW3pYwurUS-pbI_WMZMseL_iA&s=10"
         },
         publicId: {
             type: String,
