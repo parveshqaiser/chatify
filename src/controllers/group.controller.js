@@ -13,7 +13,6 @@ const createGroup = async(req, res)=>{
     try {
         let loggedInUser = req.user.id; // sender id
 
-        let file = req.file;
         let {groupName, members, description }= req.body;
         
         members = JSON.parse(members);
@@ -48,14 +47,14 @@ const createGroup = async(req, res)=>{
 
         uploadedPublicId = result?.public_id;
 
-        let avatar = {
+        let groupAvatar = {
             publicId: result?.public_id || null,
             url: result?.secure_url || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyMhkU6ImpYVLj4XSVXbVg3z-A3a1hmdeZ4IF3ja-gwQ&s=10",
             createdAt: result?.created_at  || null
         };
 
         let group = await GroupModel.create({
-            avatar,
+            groupAvatar,
             groupName,
             members,
             description,
@@ -94,7 +93,7 @@ const fetchGroupDetails = async(req, res)=>{
                 {createdBy : loggedInUser}, 
                 {"members.userId" : loggedInUser}
             ]
-        }).populate({path:"members.userId"}).select("avatar");
+        }).populate({path: "members.userId",select: "avatar username name"});
 
         res.status(200).json({
             message : "Group Details Fetched",
