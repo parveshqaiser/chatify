@@ -15,7 +15,7 @@ router.get("/", userAuthentication, fetchGroupDetails);
 router.post("/:groupId/add-members", userAuthentication, isGroupAdmin, addMembers);
 router.delete("/:groupId/remove-members/:userId", userAuthentication,isGroupAdmin, removeMembers);
 router.delete("/:groupId", userAuthentication, isGroupAdmin, deleteGroup);
-router.patch("/:groupId/edit", userAuthentication, isGroupAdmin, editGroup);
+router.patch("/:groupId/edit", userAuthentication, isGroupAdmin, uploadFile.single("image"), editGroup);
 
 
 export default router;
