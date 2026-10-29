@@ -5,6 +5,7 @@ import GroupModel from "../models/group-chat.model.js";
 
 const isGroupAdmin = async(req, res, next)=>{
     try {
+        
         let { groupId } = req.params;
         let userId = req.user.id;
 
