@@ -64,13 +64,12 @@
 - `GET` - Fetch Group by users (secured)
 - `POST` - Add members in the group (secured) only admin
 - `DELETE` - Remove members from the group (secured) only admin
-- `PATCH`   Edit group (like name, description) 
-
+- `PATCH`   Edit group (like name, description, group avatar) 
 - `DELETE` - Delete Group ( remove all conversation of all the users in the group )(secured)
 
 - `POST` - Send Message 3 or more person (secured)
 - `GET` - Get All Messages of the group
-- `PATCH /edit-chat` -  Update/ edit user meesage (secured)
+- `PATCH  edit/chat` -  Update/ edit user meesage (secured)
 
 ### 3. Security Features
 
