@@ -172,7 +172,7 @@ const removeMembers = async(req, res)=>{
         let group = req.group;
         let { userId } = req.body;
 
-         if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid user ID"
@@ -325,11 +325,68 @@ const editGroup = async (req, res) => {
     }
 };
 
+//  by user
+const exitGroup = async( req, res)=>{
+    try {
+        
+        let loggedInUser = req.user.id; // logged in user
+        let {groupId} = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(groupId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Group ID"
+            });
+        }
+
+        let group = await GroupModel.findOne({_id:groupId});
+
+        if(!group){
+            return res.status(404).json({
+                message : "Group Not Found",
+                success : false
+            })
+        }
+
+        let isMember = group.members.some(
+            member => member.userId.toString() === loggedInUser
+        );
+
+        if (!isMember) {
+            return res.status(404).json({
+                message: "User is Not a member in this Group",
+                success: false,
+            });
+        }
+
+        group.members.pull({
+            userId: new mongoose.Types.ObjectId(loggedInUser)
+        });
+
+        // If the user is an admin, remove from admin group.
+
+        await group.save();
+
+        res.status(200).json({
+            success: true,
+            message: "You have Exited the Group",
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Some Issue in Exiting Group",
+            error: error.message,
+            success: false,
+        });
+    }
+}
+
 export {
     createGroup,
     addMembers,
     removeMembers,
     deleteGroup,
     fetchGroupDetails,
-    editGroup
+    editGroup,
+    exitGroup
 }
