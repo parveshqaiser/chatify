@@ -30,21 +30,43 @@ let GroupSchema = new mongoose.Schema({
         maxlength: 100,
         default: null,
     },
+    // members: [{
+    //     userId : {
+    //         type: mongoose.Schema.Types.ObjectId,
+    //         ref: "users",
+    //         required: true,
+    //     },
+    //     username : {
+    //         type: String,
+    //         required : true
+    //     }
+    // }],
     members: [{
-        userId : {
+        userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "users",
             required: true,
         },
-        username : {
+        role: {
             type: String,
-            required : true
-        }
+            enum: ["admin", "member"],
+            default: "member",
+        },
+        joinedAt: {
+            type: Date,
+            default: Date.now,
+        },
     }],
-    admins: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
-    }],
+    // last message in the group , the id here is message id of that group
+    lastMessage: {
+        type: mongoose.Schema.Types.ObjectId,  
+        ref: "group-messages",
+        default: null,
+    },
+    lastMessageAt: {
+        type: Date,
+        default: null,
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
@@ -54,6 +76,10 @@ let GroupSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     }
+     // admins: [{
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "users",
+    // }],
 },{timestamps: true});
 
 
