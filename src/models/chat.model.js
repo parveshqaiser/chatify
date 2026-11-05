@@ -1,6 +1,8 @@
 
 import mongoose from "mongoose";
 
+
+// this model is used in V1 of messages 
 const MessageSchema = new mongoose.Schema({
     senderId : {
         type : mongoose.Schema.Types.ObjectId,
