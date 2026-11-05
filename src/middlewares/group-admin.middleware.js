@@ -1,7 +1,7 @@
 
 import mongoose from "mongoose";
 
-import GroupModel from "../models/group-chat.model.js";
+import GroupModel from "../models/group.model.js";
 
 const isGroupAdmin = async(req, res, next)=>{
     try {
