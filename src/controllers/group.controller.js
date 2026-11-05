@@ -1,6 +1,6 @@
 
 import mongoose from "mongoose";
-import GroupModel from "../models/group-chat.model.js";
+import GroupModel from "../models/group.model.js";
 import cloudinary from "../services/cloudinary.service.js";
 import { Readable } from "node:stream";
 import UserModel from "../models/user.model.js";
