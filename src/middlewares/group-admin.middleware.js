@@ -7,7 +7,7 @@ const isGroupAdmin = async(req, res, next)=>{
     try {
         
         let { groupId } = req.params;
-        let userId = req.user.id;
+        let loggedInUser = req.user.id;
 
         let group = await GroupModel.findById(groupId);
 
@@ -18,10 +18,7 @@ const isGroupAdmin = async(req, res, next)=>{
             });
         }
 
-        let isAdmin = group.admins.some(
-            adminId => adminId.toString() === userId.toString()
-        );
-
+        let isAdmin = group.members.some(item => item.userId.toString() == loggedInUser.toString() && item.role == "admin");
         if (!isAdmin) {
             return res.status(403).json({
                 success: false,
