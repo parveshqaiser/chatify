@@ -120,12 +120,12 @@ const fetchGroupDetails = async(req, res)=>{
     }
 }
 
-// as of now adding as single/ individual member  & not multiple
+// adding single member one at a time.
 const addMembers = async (req, res)=> {
     try {
        
         let group = req.group;
-        let { userId } = req.body;
+        let { userId, role } = req.body;  // incoming user id
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({
@@ -143,20 +143,18 @@ const addMembers = async (req, res)=> {
             });
         }
 
-        let alreadyMember = group.members.some(
-            member => member.userId.toString() === userId
-        );
+        let alreadyMember = group?.members?.some(member => member.userId.toString() === userId);
 
         if (alreadyMember) {
             return res.status(409).json({
                 message: "User is already a group member",
-                 success: false,
+                success: false,
             });
         }
 
         group.members.push({
             userId: user._id,
-            username: user.username
+            role : role,
         });
 
         await group.save();
