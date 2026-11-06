@@ -16,7 +16,7 @@ const createGroup = async(req, res)=>{
         let {groupName, members, description }= req.body;
         
         members = JSON.parse(members);
-        
+
         if (!groupName?.trim()) {
             return res.status(400).json({
                 message: "Group name is required",
@@ -53,13 +53,23 @@ const createGroup = async(req, res)=>{
             createdAt: result?.created_at  || null
         };
 
+        let uniqueMembers = [...new Set([
+            ...members.map(id => id.toString()),
+            loggedInUser.toString()
+        ])];
+
+        let modifyMembers = uniqueMembers.map(userId => ({
+            userId,
+            role: userId === loggedInUser.toString() ? "admin" : "member",
+            joinedAt: new Date()
+        }));
+
         let group = await GroupModel.create({
             groupAvatar,
             groupName,
-            members,
+            members : modifyMembers,
             description,
             createdBy : loggedInUser,
-            admins : [loggedInUser]
         });
 
         res.status(201).json({

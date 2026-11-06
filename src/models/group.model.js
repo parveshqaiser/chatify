@@ -54,7 +54,7 @@ let GroupSchema = new mongoose.Schema({
         },
         joinedAt: {
             type: Date,
-            default: Date.now,
+            default: new Date()
         },
     }],
     // last message in the group , the id here is message id of that group
