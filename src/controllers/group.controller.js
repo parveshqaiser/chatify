@@ -61,7 +61,7 @@ const createGroup = async(req, res)=>{
         let modifyMembers = uniqueMembers.map(userId => ({
             userId,
             role: userId === loggedInUser.toString() ? "admin" : "member",
-            joinedAt: new Date()
+            joinedAt : Date.now()
         }));
 
         let group = await GroupModel.create({
@@ -174,7 +174,7 @@ const addMembers = async (req, res)=> {
     }
 }
 
-// remove members by admin only
+
 const removeMembers = async(req, res)=>{
     try {
         let group = req.group;
@@ -207,30 +207,22 @@ const removeMembers = async(req, res)=>{
             });
         }
 
-        let isAdmin = group.admins.some(
-            id => id.toString() === userId
-        );
-
-        if (isAdmin && group.admins.length === 1) {
+        if(group.members.length === 2){
             return res.status(400).json({
                 success: false,
-                message: "Cannot remove the last group admin"
+                message: "Cannot remove the last group member"
             });
         }
 
-        group.members.pull({
+        let result = group.members.pull({
             userId: new mongoose.Types.ObjectId(userId)
         });
-
-        // Also remove admin privileges if applicable.
-        group.admins.pull(userId);
 
         await group.save();
 
         res.status(200).json({
-            success: true,
             message: "Member removed successfully",
-            data: group
+            success: true          
         });
 
     } catch (error) {
@@ -333,61 +325,170 @@ const editGroup = async (req, res) => {
     }
 };
 
-//  by user
-const exitGroup = async( req, res)=>{
-    try {
+// const exitGroup = async( req, res)=>{
+//     try {
         
-        let loggedInUser = req.user.id; // logged in user
-        let {groupId} = req.params;
+//         let loggedInUser = req.user.id; // logged in user
+//         let {groupId} = req.params;
 
+//         if (!mongoose.Types.ObjectId.isValid(groupId)) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Invalid Group ID"
+//             });
+//         }
+
+//         let group = await GroupModel.findOne({_id:groupId});
+
+//         if(!group){
+//             return res.status(404).json({
+//                 message : "Group Not Found",
+//                 success : false
+//             })
+//         }
+
+//         let isMember = group.members.some(
+//             member => member.userId.toString() === loggedInUser
+//         );
+
+//         if (!isMember) {
+//             return res.status(404).json({
+//                 message: "User is Not a member in this Group",
+//                 success: false,
+//             });
+//         }
+
+//         group.members.pull({
+//             userId: new mongoose.Types.ObjectId(loggedInUser)
+//         });
+
+//         await group.save();
+
+//         res.status(200).json({
+//             success: true,
+//             message: "You have Exited the Group",
+//         });
+
+//     } catch (error) {
+//         return res.status(500).json({
+//             message: "Some Issue in Exiting Group",
+//             error: error.message,
+//             success: false,
+//         });
+//     }
+// }
+
+const exitGroup = async (req, res) => {
+    const session = await mongoose.startSession();
+
+    try {
+        const loggedInUser = req.user.id;
+        const { groupId } = req.params;
+
+        // 1. Validate group ID
         if (!mongoose.Types.ObjectId.isValid(groupId)) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid Group ID"
+                message: "Invalid group ID",
             });
         }
 
-        let group = await GroupModel.findOne({_id:groupId});
+        let responseData = {};
 
-        if(!group){
-            return res.status(404).json({
-                message : "Group Not Found",
-                success : false
-            })
-        }
+        await session.withTransaction(async () => {
 
-        let isMember = group.members.some(
-            member => member.userId.toString() === loggedInUser
-        );
+            // 2. Find group
+            const group = await GroupModel.findById(groupId).session(session);
 
-        if (!isMember) {
-            return res.status(404).json({
-                message: "User is Not a member in this Group",
-                success: false,
-            });
-        }
+            if (!group) {
+                const error = new Error("Group not found");
+                error.statusCode = 404;
+                throw error;
+            }
 
-        group.members.pull({
-            userId: new mongoose.Types.ObjectId(loggedInUser)
+            if (!group.isActive) {
+                const error = new Error("This group is inactive");
+                error.statusCode = 409;
+                throw error;
+            }
+
+            // 3. Find logged-in user's membership
+            const memberIndex = group.members.findIndex(
+                (member) => member.userId.toString() === loggedInUser.toString()
+            );
+
+            if (memberIndex === -1) {
+                const error = new Error("You are not a member of this group");
+                error.statusCode = 403;
+                throw error;
+            }
+
+            const leavingMember = group.members[memberIndex];
+            const wasAdmin = leavingMember.role === "admin";
+
+            // 4. Remove the leaving member
+            group.members.splice(memberIndex, 1);
+
+            let newAdmin = null;
+            let groupDeactivated = false;
+
+            // 5. Handle the case where no members remain
+            if (group.members.length === 0) {
+                group.isActive = false;
+                groupDeactivated = true;
+            } else {
+
+                // 6. Check whether any admin remains
+                const hasAdmin = group.members.some(
+                    (member) => member.role === "admin"
+                );
+
+                // 7. Promote the oldest remaining member if necessary
+                if (!hasAdmin) {
+                    const oldestMember = [...group.members].sort(
+                        (a, b) =>
+                            new Date(a.joinedAt).getTime() -
+                            new Date(b.joinedAt).getTime()
+                    )[0];
+
+                    oldestMember.role = "admin";
+                    newAdmin = oldestMember.userId;
+                }
+            }
+
+            // 8. Save changes
+            await group.save({ session });
+
+            responseData = {
+                groupDeactivated,
+                newAdmin,
+                remainingMembers: group.members.length,
+                message: groupDeactivated
+                    ? "You left the group. The group is now inactive."
+                    : wasAdmin
+                        ? "Admin exited successfully."
+                        : "You have exited the group successfully.",
+            };
         });
 
-        // If the user is an admin, remove from admin group.
-
-        await group.save();
-
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            message: "You have Exited the Group",
+            ...responseData,
         });
 
     } catch (error) {
-        return res.status(500).json({
-            message: "Some Issue in Exiting Group",
-            error: error.message,
+        console.error("Exit group error:", error);
+
+        return res.status(error.statusCode || 500).json({
             success: false,
+            message: error.message || "Something went wrong while exiting the group.",
         });
+
+    } finally {
+        await session.endSession();
     }
-}
+};
+
 
 export {
     createGroup,

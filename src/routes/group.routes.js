@@ -13,7 +13,7 @@ let router = express.Router();
 router.post("/", userAuthentication,uploadFile.single("image"), createGroup);
 router.get("/", userAuthentication, fetchGroupDetails);
 router.post("/:groupId/add-members", userAuthentication, isGroupAdmin, addMembers);
-router.delete("/:groupId/remove-members/:userId", userAuthentication,isGroupAdmin, removeMembers);
+router.delete("/:groupId/remove-members", userAuthentication,isGroupAdmin, removeMembers);
 router.delete("/:groupId", userAuthentication, isGroupAdmin, deleteGroup);
 router.patch("/:groupId/edit", userAuthentication, isGroupAdmin, uploadFile.single("image"), editGroup);
 router.delete("/:groupId/exit", userAuthentication, exitGroup);

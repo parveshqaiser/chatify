@@ -30,17 +30,6 @@ let GroupSchema = new mongoose.Schema({
         maxlength: 100,
         default: null,
     },
-    // members: [{
-    //     userId : {
-    //         type: mongoose.Schema.Types.ObjectId,
-    //         ref: "users",
-    //         required: true,
-    //     },
-    //     username : {
-    //         type: String,
-    //         required : true
-    //     }
-    // }],
     members: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -54,8 +43,8 @@ let GroupSchema = new mongoose.Schema({
         },
         joinedAt: {
             type: Date,
-            default: new Date()
-        },
+            default: Date.now()
+        }
     }],
     // last message in the group , the id here is message id of that group
     lastMessage: {
@@ -76,13 +65,21 @@ let GroupSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     }
-     // admins: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "users",
-    // }],
 },{timestamps: true});
 
 
 const GroupModel = mongoose.model("groups", GroupSchema);
 
 export default GroupModel;
+
+/*
+        joinedAt: {
+            type: Date,
+            default: new Date()
+        },
+        joinedAt: {
+            type: Date,
+            default: Date.now  // it gives timestamp otherwise both the date & time will be same
+        }
+
+*/
