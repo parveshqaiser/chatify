@@ -476,7 +476,11 @@ const fetchAllUsers = async(req, res)=>{
         let users = await UserModel.find({
             email : {$ne : email}, 
             isEmailVerified : true
-        }).select("-password -refreshToken -emailVerificationExpiry -emailVerificationToken");
+        }).select(`
+            -password 
+            -refreshToken 
+            -emailVerificationExpiry 
+            -emailVerificationToken`).lean();
 
         res.status(200).json({
             message : "Date Fetched",
