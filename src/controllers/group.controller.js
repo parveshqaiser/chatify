@@ -94,7 +94,7 @@ const createGroup = async(req, res)=>{
 }
 
 // fetch all group (only those where user is present )
-const fetchGroupDetails = async(req, res)=>{
+const fetchAllGroupDetails = async(req, res)=>{
     try {
         let loggedInUser = req.user.id; // logged in user
 
@@ -120,60 +120,102 @@ const fetchGroupDetails = async(req, res)=>{
     }
 }
 
-// adding single member one at a time.
-const addMembers = async (req, res)=> {
+const addMembers = async(req, res)=>{
     try {
-       
-        let group = req.group;
-        let { userId, role } = req.body;  // incoming user id
+        let group = req.group ;
+        let members = req.body;
 
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!Array.isArray(members) || members.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid user ID"
+                message: "Please provide an array of member IDs.",
             });
         }
 
-        let user = await UserModel.findById(userId).select("username");
+        let invalidIds = members.filter((id) => !mongoose.isObjectIdOrHexString(id));
 
-        if (!user) {
-            return res.status(404).json({
-                message: "User not found",
-                success: false,               
-            });
-        }
-
-        let alreadyMember = group?.members?.some(member => member.userId.toString() === userId);
-
-        if (alreadyMember) {
-            return res.status(409).json({
-                message: "User is already a group member",
+        if (invalidIds.length > 0) {
+            return res.status(400).json({
                 success: false,
+                message: "Some member IDs are invalid.",
+                invalidIds,
             });
         }
 
-        group.members.push({
-            userId: user._id,
-            role : role,
-        });
+        // Remove duplicate IDs
+        let uniqueIds = [...new Set(
+            members.map((id) => id.toString())
+        )];
 
-        await group.save();
+        console.log("uniqueIds ", uniqueIds);
+
+        // Check which users exist in DB (single query)
+        let existingUsers = await UserModel.find({
+            _id: { $in: uniqueIds },
+        }).select("_id");
+
+        console.log("existingUsers ", existingUsers)
+
+        let existingUserIds = new Set(
+            existingUsers.map((user) => user._id.toString())
+        );
+
+        console.log("existingUserIds ", existingUserIds)
+
+        // Identify IDs that don't exist
+        let notFoundIds = uniqueIds.filter(
+            (id) => !existingUserIds.has(id)
+        );
+
+        if (notFoundIds.length > 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Some users do not exist.",
+                notFoundIds,
+            });
+        }
+
+        // 6. Check which users are already group members
+        let currentMemberIds = new Set(
+            group.members.map((member) => member.userId.toString())
+        );
+
+        let alreadyMembers = uniqueIds.filter(
+            (id) => currentMemberIds.has(id)
+        );
+
+        if (alreadyMembers.length > 0) {
+            return res.status(409).json({
+                message: "Some users are already members of this group.",
+                success: false,               
+                alreadyMembers,
+            });
+        }
+
+        group.members.push(
+            ...existingUsers.map((user) => ({
+                userId: user._id,
+                role: "member",
+            }))
+        );
+
+        // 8. Save group
+        // await group.save();
 
         return res.status(200).json({
             success: true,
-            message: "Member added successfully",
-            data: group
+            message: `${existingUsers.length} members added successfully.`,
+            addedCount: existingUsers.length,
         });
 
     } catch (error) {
-        return res.status(500).json({ 
-            message: "Some Issue in Adding Member Group", 
-            error: error.message, 
-            success: false 
+        return res.status(500).json({
+            message: "Some Issue in Adding Member in Group",
+            error: error.message,
+            success: false,
         });
     }
 }
-
 
 const removeMembers = async(req, res)=>{
     try {
@@ -495,7 +537,7 @@ export {
     addMembers,
     removeMembers,
     deleteGroup,
-    fetchGroupDetails,
+    fetchAllGroupDetails,
     editGroup,
     exitGroup
 }
