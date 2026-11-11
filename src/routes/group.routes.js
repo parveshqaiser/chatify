@@ -7,6 +7,7 @@ import {
 } from "../controllers/group.controller.js";
 import uploadFile from "../middlewares/multer.middleware.js";
 import isGroupAdmin from "../middlewares/group-admin.middleware.js";
+import { fetchGroupMessage, sendMessageGroup } from "../controllers/group-chat-controller.js";
 
 let router = express.Router();
 
@@ -17,6 +18,12 @@ router.delete("/:groupId/remove-members", userAuthentication,isGroupAdmin, remov
 router.delete("/:groupId", userAuthentication, isGroupAdmin, deleteGroup);
 router.patch("/:groupId/edit", userAuthentication, isGroupAdmin, uploadFile.single("image"), editGroup);
 router.delete("/:groupId/exit", userAuthentication, exitGroup);
+
+
+// group messages
+
+router.post("/:groupId/message", userAuthentication, sendMessageGroup);
+router.get("/:groupId/message", userAuthentication, fetchGroupMessage);
 
 
 export default router;
