@@ -68,7 +68,11 @@ const fetchGroupMessage = async(req, res)=>{
         let {groupId} = req.params;
         let loggedInUser = req.user.id;
 
-        let group = await GroupModel.findById(groupId).lean();
+        let group = await GroupModel.findById(groupId)
+            .populate([
+                { path: "createdBy", select: "name" },
+                { path: "members.userId", select: "name" }
+        ]).lean();
 
         if (!group) {
             return res.status(404).json({
@@ -77,7 +81,7 @@ const fetchGroupMessage = async(req, res)=>{
             });
         }
 
-        let userIsMember = group.members.find(val => val.userId == loggedInUser);
+        let userIsMember = group.members.find(val => val.userId?._id == loggedInUser);  // the above populate affects the members array as well
 
         if(!userIsMember){
             return res.status(403).json({
@@ -88,7 +92,7 @@ const fetchGroupMessage = async(req, res)=>{
 
         let allMessages = await GroupMessageModel.find({
             groupId,
-        }).lean();  // gives all the info that group that includes 
+        }).populate("senderId", "name").lean();
 
         return res.status(200).json({
             message: allMessages.length === 0
