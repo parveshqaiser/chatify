@@ -66,16 +66,39 @@ const fetchGroupMessage = async(req, res)=>{
     try {
 
         let {groupId} = req.params;
+        let loggedInUser = req.user.id;
 
-        // below i need to check whether the logged in user belong to taht group or not. 
+        let group = await GroupModel.findById(groupId).lean();
+
+        if (!group) {
+            return res.status(404).json({
+                message: "No group found",
+                success: false,
+            });
+        }
+
+        let userIsMember = group.members.find(val => val.userId == loggedInUser);
+
+        if(!userIsMember){
+            return res.status(403).json({
+                message : "You are not a member in this group",
+                success : false
+            });
+        }
+
         let allMessages = await GroupMessageModel.find({
-            groupId ,
-        }).populate("groupId").lean();
+            groupId,
+        }).lean();  // gives all the info that group that includes 
 
-        res.status(200).json({
-            message : "All Messages fetched",
-            success : true,
-            data : allMessages            
+        return res.status(200).json({
+            message: allMessages.length === 0
+                ? "No messages found in this group"
+                : "All messages fetched",
+            success: true,
+            data: {
+                group,
+                allMessages
+            }
         });
 
     } catch (error) {
