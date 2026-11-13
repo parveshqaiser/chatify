@@ -199,7 +199,7 @@ const addMembers = async(req, res)=>{
             }))
         );
 
-        // await group.save();
+        await group.save();
 
         return res.status(200).json({
             success: true,
