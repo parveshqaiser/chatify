@@ -71,7 +71,7 @@ const fetchGroupMessage = async(req, res)=>{
         let group = await GroupModel.findById(groupId)
             .populate([
                 { path: "createdBy", select: "name" },
-                { path: "members.userId", select: "name" }
+                { path: "members.userId", select: "name username avatar" }
         ]).lean();
 
         if (!group) {
