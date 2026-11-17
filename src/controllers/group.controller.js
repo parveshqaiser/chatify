@@ -142,25 +142,22 @@ const addMembers = async(req, res)=>{
             });
         }
 
-        // Remove duplicate IDs
+        // remove duplicate IDs
         let uniqueIds = [...new Set(
             members.map((id) => id.toString())
         )];
 
-        console.log("uniqueIds ", uniqueIds);
-
-        // Check which users exist in DB (single query)
         let existingUsers = await UserModel.find({
             _id: { $in: uniqueIds },
         }).select("_id");
 
-        console.log("existingUsers ", existingUsers)
+        // console.log("existingUsers ", existingUsers)
 
         let existingUserIds = new Set(
             existingUsers.map((user) => user._id.toString())
         );
 
-        console.log("existingUserIds ", existingUserIds)
+        // console.log("existingUserIds ", existingUserIds)
 
         // Identify IDs that don't exist
         let notFoundIds = uniqueIds.filter(
@@ -175,7 +172,7 @@ const addMembers = async(req, res)=>{
             });
         }
 
-        // 6. Check which users are already group members
+        // Check which users are already group members
         let currentMemberIds = new Set(
             group.members.map((member) => member.userId.toString())
         );
@@ -530,6 +527,78 @@ const exitGroup = async (req, res) => {
     }
 };
 
+const groupRolePermission = async(req, res)=>{
+    try {
+        let group = req.group;
+        // step 1, check all incoming id are correct or not
+        // step 2, check all are present in DB
+        // step 3, check whether they are members of that group
+
+        let changedMembers = req.body;
+
+        let allowedRoles = ["admin", "member"];
+
+        for(let [id,role] of Object.entries(changedMembers)){
+            if((id || role) == "" || null){
+                return res.status(400).json({
+                    message : "Field cannot be empty",
+                    success : false 
+                })
+            }
+
+            if(!allowedRoles.includes(role)){
+                return res.status(400).json({
+                    message : `Invalid role ${role}`,
+                    success : false 
+                })
+            }
+        }
+
+        let invalidIds = Object.keys(changedMembers).filter(id => !mongoose.isObjectIdOrHexString(id));
+
+        if (invalidIds.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Some member IDs are invalid.",
+                invalidIds,
+            });
+        }
+
+        let dbMemberMap = new Map(
+            group.members.map((m) => [(m.userId || m._id).toString(), m])
+        );
+
+        const notFoundIds = Object.keys(changedMembers).filter((id) => !dbMemberMap.has(id));
+
+        if (notFoundIds.length > 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Some users are not members of this group.",
+                notFoundIds,
+            });
+        }
+
+        for (const [id, role] of Object.entries(changedMembers)) {
+            dbMemberMap.get(id).role = role;
+        }
+        
+        await group.save();
+
+        res.status(200).json({
+            message : "Request Members role changed",
+            success : true
+        });
+
+    } catch (error) {
+        console.error("some error in role per", error);
+
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Something went wrong",
+        });
+    }
+}
+
 
 export {
     createGroup,
@@ -538,5 +607,6 @@ export {
     deleteGroup,
     fetchAllGroupDetails,
     editGroup,
-    exitGroup
+    exitGroup,
+    groupRolePermission
 }
