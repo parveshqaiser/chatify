@@ -100,7 +100,7 @@ const fetchAllGroupDetails = async(req, res)=>{
 
         let groups = await GroupModel.find({
             $or : [
-                {createdBy : loggedInUser}, 
+                // {createdBy : loggedInUser}, 
                 {"members.userId" : loggedInUser}
             ]
         }).populate({path: "members.userId",select: "avatar username name"});
