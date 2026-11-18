@@ -309,6 +309,13 @@ const editGroup = async (req, res) => {
             });
         }
 
+        if(description && description.length >71){
+            return res.status(400).json({
+                message: "Group Description max chars 70",
+                success: false,
+            });
+        }
+
         let uploaded = null;
         if (req.file) {
             uploaded = await new Promise((resolve, reject) => {
