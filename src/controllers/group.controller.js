@@ -216,7 +216,8 @@ const addMembers = async(req, res)=>{
 const removeMembers = async(req, res)=>{
     try {
         let group = req.group;
-        let { userId } = req.body;
+        let {userId}  = req.body;
+        // console.log("body ", req.body);
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({
