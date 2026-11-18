@@ -27,7 +27,7 @@ let GroupSchema = new mongoose.Schema({
     description: {
         type: String,
         trim: true,
-        maxlength: 100,
+        maxlength: 70,
         default: null,
     },
     members: [{
