@@ -4,6 +4,7 @@ import GroupModel from "../models/group.model.js";
 import cloudinary from "../services/cloudinary.service.js";
 import { Readable } from "node:stream";
 import UserModel from "../models/user.model.js";
+import GroupMessageModel from "../models/group.message.model.js";
 
 // backend validation in this controller is pending
 const createGroup = async(req, res)=>{
@@ -607,6 +608,55 @@ const groupRolePermission = async(req, res)=>{
     }
 }
 
+const clearUserConversation = async(req, res)=>{
+    try {   
+        let loggedInUser = req.user.id;
+        let { groupId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(groupId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid group ID",
+            });
+        }
+
+        let group = await GroupModel.findById(groupId);
+
+        if(!group){
+            return res.status(404).json({
+                message : "No Group Found",
+                success : false
+            });
+        }
+
+        let isGroupMember = group.members.some(mem => mem.userId.toString() == loggedInUser.toString());
+
+        if(!isGroupMember){
+            return res.status(403).json({
+                success: false,
+                message: "You are not a member of this group",
+            });
+        }
+
+        let result = await GroupMessageModel.deleteMany({
+            groupId: groupId,
+            senderId: loggedInUser,
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: `Successfully deleted ${result.deletedCount} messages`,
+            deletedCount: result.deletedCount,
+        });
+
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Something went wrong",
+        });
+    }
+}
+
 
 export {
     createGroup,
@@ -616,5 +666,6 @@ export {
     fetchAllGroupDetails,
     editGroup,
     exitGroup,
-    groupRolePermission
+    groupRolePermission,
+    clearUserConversation
 }
