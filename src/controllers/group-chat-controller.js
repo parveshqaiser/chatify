@@ -27,6 +27,16 @@ const sendMessageGroup = async(req, res)=>{
             });
         }
 
+        let isGroupMember = group.members.find(user => user.userId.toString() == loggedInUser.toString());
+
+        if(!isGroupMember){
+             return res.status(404).json({
+                message: "User Not a member in this Group",
+                success: false,
+            });
+        }
+
+
         let messageData = {
             groupId,
             senderId : loggedInUser,
