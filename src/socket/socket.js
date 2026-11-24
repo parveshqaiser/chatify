@@ -1,6 +1,7 @@
 
 import { Server } from "socket.io";
-import { handleAddMessage, handleEditMesage } from "../helpers/message.helper.js";
+import { handleAddMessage, handleEditMesage } from "../helpers/message.helper.js"; // for 1-1 users
+import { initializeGroupChat } from "./groupChat.js";
 
 let onlineUsers = new Map();
 
@@ -14,12 +15,13 @@ const initializeSocketConnection = (httpServer)=>{
     
     io.on("connection",(socket)=>{
 
+        // user defined-event at the time of joining the app
         socket.on("register",(userId)=>{
             onlineUsers.set(userId, socket.id);
 
-            // notify all clients
+            // notify all clients when user logs in & frontend
             io.emit("onlineUsers", [...onlineUsers.keys()]);
-        })
+        });
 
         socket.on("joinChat",({current, target})=>{
             let room = [current,target].sort().join("_");
@@ -80,6 +82,8 @@ const initializeSocketConnection = (httpServer)=>{
             }
         });
 
+        initializeGroupChat(io, socket);
+
         socket.on("disconnect",()=>{
           
             for (const [userId, socketId] of onlineUsers.entries()) {
@@ -91,6 +95,7 @@ const initializeSocketConnection = (httpServer)=>{
             io.emit("onlineUsers", [...onlineUsers.keys()]);
         });
     });
+
 }
 
 export default initializeSocketConnection;

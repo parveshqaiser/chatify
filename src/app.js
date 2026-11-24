@@ -6,7 +6,7 @@ import cors from "cors";
 import http from "node:http";
 import dbConnection from "./config/db.js";
 import cookieParser from "cookie-parser";
-import initializeSocketConnection from "./utils/socket.js";
+import initializeSocketConnection from "./socket/socket.js";
 import authRoutes from "./routes/auth.routes.js"; 
 import chatRoutes from "./routes/chat.routes.js"; 
 import messageRoutes from "./routes/message.routes.js";
